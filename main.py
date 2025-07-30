@@ -188,7 +188,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Portfolio expandido con todas las tecnologías solicitadas
+# Portfolio expandido con todas las tecnologías
 FORTINET_COMPLETE_PORTFOLIO = {
     "Network Security": {
         "icon": "🔥",
@@ -553,7 +553,7 @@ IMPLEMENTATION_PHASES = {
     }
 }
 
-# Industrias y tamaños
+# Industrias y tamaños expandidos
 INDUSTRIES = {
     "Servicios Financieros": {
         "icon": "🏦", 
@@ -862,10 +862,6 @@ def show_professional_assessment():
             </div>
             """, unsafe_allow_html=True)
             
-            # Mostrar nota sobre terceros si existe
-            if category_data.get("third_party_note"):
-                st.info(category_data["third_party_note"])
-            
             non_fortinet_selected = st.checkbox(
                 f"**Soluciones de Terceros**\n\nTenemos otras tecnologías en {category_name}",
                 value=st.session_state.professional_assessment["non_fortinet_categories"].get(category_name, False),
@@ -973,7 +969,7 @@ def show_professional_results(assessment):
     </div>
     """, unsafe_allow_html=True)
     
-    # Timeline simplificado sin errores de Plotly
+    # Timeline corregido sin errores
     show_simplified_timeline(results)
     
     tab1, tab2, tab3 = st.tabs(["📊 Análisis Actual", "🗺️ Roadmap por Fases", "📈 NIST Framework"])
@@ -1003,41 +999,66 @@ def show_simplified_timeline(results):
     </div>
     """, unsafe_allow_html=True)
     
-    # Timeline simplificado con HTML/CSS
+    # Timeline usando columnas de Streamlit (más estable)
     current_level = results['maturity_level']
     
-    timeline_html = """
-    <div style='display: flex; justify-content: space-between; align-items: center; margin: 2rem 0; position: relative;'>
-        <div style='position: absolute; top: 30px; left: 10%; right: 10%; height: 4px; background: linear-gradient(90deg, #dc2626 0%, #ea580c 25%, #2563eb 50%, #16a34a 75%, #7c3aed 100%); border-radius: 2px; z-index: 0;'></div>
-    """
+    # Crear columnas para cada fase
+    cols = st.columns(5)
     
-    for phase_num, phase_data in IMPLEMENTATION_PHASES.items():
-        is_current = phase_num == current_level
-        is_completed = phase_num <= current_level
-        
-        if is_current:
-            marker_style = f"background: {phase_data['color']}; color: white; border: 4px solid #dc2626; transform: scale(1.2);"
-            marker_text = f"<div style='text-align: center; margin-top: 1rem;'><strong style='color: #dc2626;'>USTED ESTÁ AQUÍ</strong></div>"
-        elif is_completed:
-            marker_style = f"background: {phase_data['color']}; color: white; opacity: 0.8;"
-            marker_text = ""
-        else:
-            marker_style = f"background: #e5e7eb; color: #6b7280;"
-            marker_text = ""
-        
-        timeline_html += f"""
-        <div style='text-align: center; flex: 1; position: relative; z-index: 1;'>
-            <div style='width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-weight: bold; {marker_style}'>
-                {phase_num}
-            </div>
-            <div style='margin-top: 0.5rem; font-size: 0.85rem; font-weight: 600; max-width: 120px; margin-left: auto; margin-right: auto;'>{phase_data['name']}</div>
-            <div style='margin-top: 0.25rem; font-size: 0.75rem; color: #6b7280;'>{phase_data['timeline']}</div>
-            {marker_text}
+    for i, (phase_num, phase_data) in enumerate(IMPLEMENTATION_PHASES.items()):
+        with cols[i]:
+            is_current = phase_num == current_level
+            is_completed = phase_num <= current_level
+            
+            # Determinar estilo del marcador
+            if is_current:
+                # Fase actual
+                st.markdown(f"""
+                <div style='text-align: center;'>
+                    <div style='width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-weight: bold; background: {phase_data['color']}; color: white; border: 4px solid #dc2626; font-size: 1.2rem; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);'>
+                        {phase_num}
+                    </div>
+                    <div style='margin-top: 0.8rem; font-size: 0.9rem; font-weight: 600; line-height: 1.3;'>{phase_data['name']}</div>
+                    <div style='margin-top: 0.3rem; font-size: 0.8rem; color: #6b7280;'>{phase_data['timeline']}</div>
+                    <div style='margin-top: 0.8rem;'><strong style='color: #dc2626; font-size: 0.8rem;'>🎯 USTED ESTÁ AQUÍ</strong></div>
+                </div>
+                """, unsafe_allow_html=True)
+            elif is_completed:
+                # Fase completada
+                st.markdown(f"""
+                <div style='text-align: center;'>
+                    <div style='width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-weight: bold; background: {phase_data['color']}; color: white; opacity: 0.8;'>
+                        {phase_num}
+                    </div>
+                    <div style='margin-top: 0.5rem; font-size: 0.85rem; font-weight: 600; line-height: 1.3;'>{phase_data['name']}</div>
+                    <div style='margin-top: 0.25rem; font-size: 0.75rem; color: #6b7280;'>{phase_data['timeline']}</div>
+                    <div style='margin-top: 0.5rem;'><span style='color: #16a34a; font-size: 0.8rem;'>✅ Completado</span></div>
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                # Fase futura
+                st.markdown(f"""
+                <div style='text-align: center;'>
+                    <div style='width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-weight: bold; background: #e5e7eb; color: #6b7280; border: 2px dashed #9ca3af;'>
+                        {phase_num}
+                    </div>
+                    <div style='margin-top: 0.5rem; font-size: 0.85rem; font-weight: 600; line-height: 1.3; color: #6b7280;'>{phase_data['name']}</div>
+                    <div style='margin-top: 0.25rem; font-size: 0.75rem; color: #9ca3af;'>{phase_data['timeline']}</div>
+                    <div style='margin-top: 0.5rem;'><span style='color: #6b7280; font-size: 0.8rem;'>📅 Futuro</span></div>
+                </div>
+                """, unsafe_allow_html=True)
+    
+    # Línea de progreso debajo
+    st.markdown("""
+    <div style='margin: 2rem auto; max-width: 80%;'>
+        <div style='height: 4px; background: #e5e7eb; border-radius: 2px; position: relative;'>
+            <div style='height: 100%; background: linear-gradient(90deg, #dc2626 0%, #ea580c 25%, #2563eb 50%, #16a34a 75%, #7c3aed 100%); border-radius: 2px; width: {}%;'></div>
         </div>
-        """
-    
-    timeline_html += "</div>"
-    st.markdown(timeline_html, unsafe_allow_html=True)
+        <div style='text-align: center; margin-top: 0.5rem; font-size: 0.8rem; color: #6b7280;'>
+            Progreso de Implementación: {}%
+        </div>
+    </div>
+    """.format((current_level / 5) * 100, int((current_level / 5) * 100)), unsafe_allow_html=True)
 
 def show_current_analysis(results):
     st.subheader("📊 Análisis del Estado Actual")
