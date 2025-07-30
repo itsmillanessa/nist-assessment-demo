@@ -320,9 +320,15 @@ FORTINET_COMPLETE_PORTFOLIO = {
                 "impact": 3,
                 "maturity_level": 2,
                 "implementation_phase": 2
+            },
+            "Perception Point": {
+                "description": "Advanced Email Security con IA de Fortinet",
+                "nist_function": "Protect",
+                "impact": 4,
+                "maturity_level": 3,
+                "implementation_phase": 3
             }
-        },
-        "third_party_note": "Incluye soluciones como Perception Point, Proofpoint, Mimecast y otros proveedores de seguridad de email"
+        }
     },
     "Identity & Access Management": {
         "icon": "🔐",
@@ -549,21 +555,101 @@ IMPLEMENTATION_PHASES = {
 
 # Industrias y tamaños
 INDUSTRIES = {
-    "Servicios Financieros": {"icon": "🏦", "benchmark": 78},
-    "Gobierno y Sector Público": {"icon": "🏛️", "benchmark": 72}, 
-    "Salud y Farmacéutica": {"icon": "🏥", "benchmark": 69},
-    "Retail y E-commerce": {"icon": "🛒", "benchmark": 64},
-    "Manufactura e Industrial": {"icon": "🏭", "benchmark": 65},
-    "Tecnología y Software": {"icon": "💻", "benchmark": 75},
-    "Energía y Utilities": {"icon": "⚡", "benchmark": 76},
-    "Educación": {"icon": "🎓", "benchmark": 62}
+    "Servicios Financieros": {
+        "icon": "🏦", 
+        "benchmark": 78,
+        "priorities": ["Compliance", "Zero Trust", "Fraud Prevention"],
+        "regulations": ["PCI-DSS", "SOX", "GDPR"],
+        "critical_products": ["FortiPAM", "FortiAuthenticator", "FortiSIEM"],
+        "next_steps": "Priorizar gestión de identidades privilegiadas y cumplimiento regulatorio"
+    },
+    "Gobierno y Sector Público": {
+        "icon": "🏛️", 
+        "benchmark": 72,
+        "priorities": ["National Security", "Citizen Data Protection", "Critical Infrastructure"],
+        "regulations": ["FISMA", "FedRAMP", "NIST 800-53"],
+        "critical_products": ["FortiGate", "FortiNAC", "FortiAnalyzer"],
+        "next_steps": "Implementar controles de seguridad gubernamentales y protección de infraestructura crítica"
+    }, 
+    "Salud y Farmacéutica": {
+        "icon": "🏥", 
+        "benchmark": 69,
+        "priorities": ["Patient Privacy", "Medical Device Security", "Research Protection"],
+        "regulations": ["HIPAA", "FDA", "GxP"],
+        "critical_products": ["FortiNAC", "FortiEDR", "FortiDLP"],
+        "next_steps": "Asegurar dispositivos médicos y proteger datos de pacientes"
+    },
+    "Retail y E-commerce": {
+        "icon": "🛒", 
+        "benchmark": 64,
+        "priorities": ["Customer Data", "Payment Security", "Supply Chain"],
+        "regulations": ["PCI-DSS", "GDPR", "CCPA"],
+        "critical_products": ["FortiWeb", "FortiDDoS", "FortiToken"],
+        "next_steps": "Fortalecer protección de aplicaciones web y seguridad de pagos"
+    },
+    "Manufactura e Industrial": {
+        "icon": "🏭", 
+        "benchmark": 65,
+        "priorities": ["OT Security", "Supply Chain", "IP Protection"],
+        "regulations": ["IEC 62443", "NERC CIP", "TSA"],
+        "critical_products": ["FortiNDR for OT", "FortiNAC", "FortiGate"],
+        "next_steps": "Segmentar redes OT/IT y proteger sistemas de control industrial"
+    },
+    "Tecnología y Software": {
+        "icon": "💻", 
+        "benchmark": 75,
+        "priorities": ["DevSecOps", "IP Protection", "Cloud Security"],
+        "regulations": ["SOC 2", "ISO 27001", "GDPR"],
+        "critical_products": ["FortiDevSec", "FortiCWP", "FortiCNAPP"],
+        "next_steps": "Integrar seguridad en el ciclo de desarrollo y proteger workloads cloud"
+    },
+    "Energía y Utilities": {
+        "icon": "⚡", 
+        "benchmark": 76,
+        "priorities": ["Critical Infrastructure", "SCADA Security", "Grid Protection"],
+        "regulations": ["NERC CIP", "TSA", "IEC 62443"],
+        "critical_products": ["FortiNDR for OT", "FortiSIEM OT", "FortiGate"],
+        "next_steps": "Implementar monitoreo de sistemas críticos y segmentación OT"
+    },
+    "Educación": {
+        "icon": "🎓", 
+        "benchmark": 62,
+        "priorities": ["Student Privacy", "Research Security", "Campus Safety"],
+        "regulations": ["FERPA", "GDPR", "COPPA"],
+        "critical_products": ["FortiNAC", "FortiClient", "FortiAuthenticator"],
+        "next_steps": "Controlar acceso de dispositivos personales y proteger datos estudiantiles"
+    }
 }
 
 COMPANY_SIZES = {
-    "Pequeña (1-50 empleados)": {"icon": "🏢", "priority": "Fundamentos", "timeline": "6-12 meses"},
-    "Mediana (51-500 empleados)": {"icon": "🏗️", "priority": "Eficiencia", "timeline": "12-18 meses"}, 
-    "Grande (501-5000 empleados)": {"icon": "🏰", "priority": "Integración", "timeline": "18-24 meses"},
-    "Empresa (5000+ empleados)": {"icon": "🌆", "priority": "Optimización", "timeline": "24-36 meses"}
+    "Pequeña (1-50 empleados)": {
+        "icon": "🏢", 
+        "priority": "Fundamentos", 
+        "timeline": "6-12 meses",
+        "focus": ["FortiGate", "FortiClient", "FortiMail"],
+        "next_steps": "Establecer protecciones básicas de red y endpoints"
+    },
+    "Mediana (51-500 empleados)": {
+        "icon": "🏗️", 
+        "priority": "Eficiencia", 
+        "timeline": "12-18 meses",
+        "focus": ["FortiAnalyzer", "FortiAuthenticator", "FortiManager"],
+        "next_steps": "Centralizar gestión y implementar visibilidad"
+    }, 
+    "Grande (501-5000 empleados)": {
+        "icon": "🏰", 
+        "priority": "Integración", 
+        "timeline": "18-24 meses",
+        "focus": ["FortiSIEM", "FortiEDR", "FortiSOAR"],
+        "next_steps": "Implementar SOC y capacidades de detección avanzada"
+    },
+    "Empresa (5000+ empleados)": {
+        "icon": "🌆", 
+        "priority": "Optimización", 
+        "timeline": "24-36 meses",
+        "focus": ["FortiXDR", "FortiCNAPP", "FortiNDR"],
+        "next_steps": "Evolucionar hacia Zero Trust y automatización completa"
+    }
 }
 
 class ProfessionalAssessment:
@@ -901,6 +987,9 @@ def show_professional_results(assessment):
     with tab3:
         show_nist_analysis(results)
     
+    with st.expander("🎯 Próximos Pasos Recomendados", expanded=True):
+        show_next_steps_recommendations(results)
+    
     if st.button("🔄 Nuevo Assessment", use_container_width=True):
         for key in st.session_state.keys():
             del st.session_state[key]
@@ -917,7 +1006,10 @@ def show_simplified_timeline(results):
     # Timeline simplificado con HTML/CSS
     current_level = results['maturity_level']
     
-    timeline_html = "<div style='display: flex; justify-content: space-between; align-items: center; margin: 2rem 0;'>"
+    timeline_html = """
+    <div style='display: flex; justify-content: space-between; align-items: center; margin: 2rem 0; position: relative;'>
+        <div style='position: absolute; top: 30px; left: 10%; right: 10%; height: 4px; background: linear-gradient(90deg, #dc2626 0%, #ea580c 25%, #2563eb 50%, #16a34a 75%, #7c3aed 100%); border-radius: 2px; z-index: 0;'></div>
+    """
     
     for phase_num, phase_data in IMPLEMENTATION_PHASES.items():
         is_current = phase_num == current_level
@@ -934,12 +1026,12 @@ def show_simplified_timeline(results):
             marker_text = ""
         
         timeline_html += f"""
-        <div style='text-align: center; flex: 1;'>
+        <div style='text-align: center; flex: 1; position: relative; z-index: 1;'>
             <div style='width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-weight: bold; {marker_style}'>
                 {phase_num}
             </div>
-            <div style='margin-top: 0.5rem; font-size: 0.8rem; font-weight: 600;'>{phase_data['name']}</div>
-            <div style='margin-top: 0.25rem; font-size: 0.7rem; color: #6b7280;'>{phase_data['timeline']}</div>
+            <div style='margin-top: 0.5rem; font-size: 0.85rem; font-weight: 600; max-width: 120px; margin-left: auto; margin-right: auto;'>{phase_data['name']}</div>
+            <div style='margin-top: 0.25rem; font-size: 0.75rem; color: #6b7280;'>{phase_data['timeline']}</div>
             {marker_text}
         </div>
         """
@@ -1098,6 +1190,131 @@ def show_nist_analysis(results):
         
         avg_score = sum(results['function_scores'].values()) / len(results['function_scores'])
         st.metric("Puntaje Promedio NIST", f"{avg_score:.1f}%")
+
+def show_next_steps_recommendations(results):
+    """Próximos pasos recomendados basados en industria y tamaño"""
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); border: 3px solid #dc2626; border-radius: 20px; padding: 2rem; margin: 1rem 0;">
+        <h3 style="color: #dc2626; text-align: center; margin-bottom: 1.5rem;">🎯 Próximos Pasos Recomendados</h3>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    industry = st.session_state.professional_assessment['industry']
+    company_size = st.session_state.professional_assessment['company_size']
+    current_level = results['maturity_level']
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("""
+        <div style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border: 2px solid #3b82f6; border-radius: 16px; padding: 1.5rem; margin: 0.5rem 0;">
+            <h4 style="color: #1d4ed8; margin-bottom: 1rem;">📊 Análisis de Madurez Contextual</h4>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Métricas contextuales
+        if industry in INDUSTRIES:
+            industry_data = INDUSTRIES[industry]
+            benchmark = industry_data["benchmark"]
+            gap = results['overall_score'] - benchmark
+            
+            col_metric1, col_metric2 = st.columns(2)
+            with col_metric1:
+                st.metric("Nivel Actual", current_level, f"{results['overall_score']:.1f}%")
+            with col_metric2:
+                expected_level = 4.2 if company_size == "Empresa (5000+ empleados)" else 3.5
+                st.metric("Nivel Esperado", f"{expected_level}", "Por debajo del promedio" if current_level < expected_level else "")
+        
+        # Análisis específico por tamaño
+        st.markdown("**🔍 Análisis para {} / {}**".format(company_size, industry))
+        
+        if company_size in COMPANY_SIZES:
+            size_data = COMPANY_SIZES[company_size]
+            st.info(f"Existe una brecha significativa entre su nivel actual y lo esperado para {company_size}.")
+            
+            st.markdown("**🎯 Prioridades de {} / {}:**".format(company_size.split()[0], industry))
+            if industry in INDUSTRIES:
+                priorities = INDUSTRIES[industry]["priorities"]
+                for i, priority in enumerate(priorities, 1):
+                    st.write(f"{i}. {priority}")
+            
+            st.markdown("**⚠️ Desafíos Típicos:**")
+            challenges = ["Amenazas sofisticadas", "Regulatory compliance", "Digital transformation"]
+            for challenge in challenges:
+                st.write(f"• {challenge}")
+    
+    with col2:
+        st.markdown("""
+        <div style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 2px solid #22c55e; border-radius: 16px; padding: 1.5rem; margin: 0.5rem 0;">
+            <h4 style="color: #15803d; margin-bottom: 1rem;">🚀 Próximos Pasos Estratégicos</h4>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Recomendaciones específicas
+        if company_size in COMPANY_SIZES and industry in INDUSTRIES:
+            size_data = COMPANY_SIZES[company_size]
+            industry_data = INDUSTRIES[industry]
+            
+            st.markdown("**📋 Acciones Inmediatas (Próximos 3 meses):**")
+            
+            # Productos críticos por industria
+            critical_products = industry_data["critical_products"]
+            implemented_critical = []
+            missing_critical = []
+            
+            for product in critical_products:
+                # Buscar en todas las categorías
+                found = False
+                for category_name, category_data in FORTINET_COMPLETE_PORTFOLIO.items():
+                    if product in category_data["products"]:
+                        product_key = f"{category_name}_{product}"
+                        if st.session_state.professional_assessment["fortinet_products"].get(product_key, False):
+                            implemented_critical.append(product)
+                            found = True
+                            break
+                if not found or product not in [p for p in implemented_critical]:
+                    missing_critical.append(product)
+            
+            # Mostrar recomendaciones
+            st.markdown(f"1. **{industry_data['next_steps']}**")
+            st.markdown(f"2. **{size_data['next_steps']}**")
+            
+            if missing_critical:
+                st.markdown("3. **Implementar productos críticos faltantes:**")
+                for product in missing_critical[:3]:  # Top 3
+                    st.write(f"   • {product}")
+            
+            st.markdown("4. **Mejorar visibilidad y monitoreo continuo**")
+            st.markdown("5. **Establecer métricas de seguridad**")
+            
+            # Regulaciones aplicables
+            if "regulations" in industry_data:
+                st.markdown("**📜 Cumplimiento Regulatorio:**")
+                for reg in industry_data["regulations"]:
+                    st.write(f"• {reg}")
+    
+    # Roadmap personalizado por industria
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid #0ea5e9; border-radius: 16px; padding: 1.5rem; margin: 1rem 0;">
+        <h4 style="color: #0369a1; margin-bottom: 1rem;">🗺️ Roadmap Personalizado para {} / {}</h4>
+    </div>
+    """.format(company_size.split()[0], industry), unsafe_allow_html=True)
+    
+    # Timeline personalizado
+    phases_data = []
+    for phase_num, phase_data in IMPLEMENTATION_PHASES.items():
+        if phase_num <= current_level + 2:  # Mostrar hasta 2 fases adelante
+            status = "✅ Completado" if phase_num <= current_level else "🎯 Siguiente" if phase_num == current_level + 1 else "📅 Futuro"
+            phases_data.append({
+                "Fase": f"Nivel {phase_num}",
+                "Nombre": phase_data['name'],
+                "Estado": status,
+                "Timeline": phase_data['timeline'],
+                "Enfoque": phase_data['focus']
+            })
+    
+    df_roadmap = pd.DataFrame(phases_data)
+    st.dataframe(df_roadmap, use_container_width=True, hide_index=True)
 
 if __name__ == "__main__":
     main()
