@@ -5,11 +5,7 @@ import plotly.graph_objects as go
 from datetime import datetime
 import uuid
 import json
-import os
 from typing import Dict, List
-import psycopg2
-from sqlalchemy import create_engine
-import hashlib
 
 # Configuración de página
 st.set_page_config(
@@ -19,7 +15,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS para un look más profesional
+# Custom CSS para un look profesional
 st.markdown("""
 <style>
     .main-header {
@@ -47,10 +43,6 @@ st.markdown("""
         margin: 1rem 0;
     }
     
-    .sidebar .sidebar-content {
-        background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
-    }
-    
     .stButton > button {
         background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%);
         color: white;
@@ -73,116 +65,68 @@ st.markdown("""
 NIST_FRAMEWORK = {
     "Identify": {
         "description": "Desarrollar una comprensión organizacional para gestionar el riesgo de ciberseguridad",
-        "categories": {
-            "ID.AM": "Asset Management",
-            "ID.BE": "Business Environment", 
-            "ID.GV": "Governance",
-            "ID.RA": "Risk Assessment",
-            "ID.RM": "Risk Management Strategy",
-            "ID.SC": "Supply Chain Risk Management"
-        }
+        "categories": ["Asset Management", "Business Environment", "Governance", "Risk Assessment"]
     },
     "Protect": {
         "description": "Desarrollar e implementar salvaguardas apropiadas para asegurar la entrega de servicios críticos",
-        "categories": {
-            "PR.AC": "Identity Management and Access Control",
-            "PR.AT": "Awareness and Training",
-            "PR.DS": "Data Security",
-            "PR.IP": "Information Protection Processes and Procedures",
-            "PR.MA": "Maintenance",
-            "PR.PT": "Protective Technology"
-        }
+        "categories": ["Access Control", "Awareness & Training", "Data Security", "Protective Technology"]
     },
     "Detect": {
         "description": "Desarrollar e implementar actividades apropiadas para identificar la ocurrencia de un evento de ciberseguridad",
-        "categories": {
-            "DE.AE": "Anomalies and Events",
-            "DE.CM": "Security Continuous Monitoring",
-            "DE.DP": "Detection Processes"
-        }
+        "categories": ["Anomalies & Events", "Security Monitoring", "Detection Processes"]
     },
     "Respond": {
         "description": "Desarrollar e implementar actividades apropiadas para tomar acción respecto a un incidente detectado",
-        "categories": {
-            "RS.RP": "Response Planning",
-            "RS.CO": "Communications",
-            "RS.AN": "Analysis",
-            "RS.MI": "Mitigation",
-            "RS.IM": "Improvements"
-        }
+        "categories": ["Response Planning", "Communications", "Analysis", "Mitigation"]
     },
     "Recover": {
         "description": "Desarrollar e implementar actividades apropiadas para mantener planes de resiliencia",
-        "categories": {
-            "RC.RP": "Recovery Planning",
-            "RC.IM": "Improvements",
-            "RC.CO": "Communications"
-        }
+        "categories": ["Recovery Planning", "Improvements", "Communications"]
     }
 }
 
-# Preguntas de assessment por función NIST
+# Preguntas de assessment simplificadas para demo
 ASSESSMENT_QUESTIONS = {
     "Identify": [
         {
             "id": "ID_001",
-            "category": "ID.AM",
             "question": "¿Su organización mantiene un inventario actualizado de todos los activos de hardware?",
             "weight": 0.9
         },
         {
             "id": "ID_002", 
-            "category": "ID.AM",
             "question": "¿Su organización mantiene un inventario actualizado de todos los activos de software?",
             "weight": 0.9
         },
         {
             "id": "ID_003",
-            "category": "ID.BE",
             "question": "¿Se han identificado y documentado todos los procesos críticos de negocio?",
             "weight": 0.8
         },
         {
             "id": "ID_004",
-            "category": "ID.GV",
             "question": "¿Existe una política de ciberseguridad formal aprobada por la alta dirección?",
             "weight": 1.0
-        },
-        {
-            "id": "ID_005",
-            "category": "ID.RA",
-            "question": "¿Se realizan evaluaciones de riesgo de ciberseguridad de forma regular?",
-            "weight": 0.9
         }
     ],
     "Protect": [
         {
             "id": "PR_001",
-            "category": "PR.AC",
             "question": "¿Está implementado un sistema de autenticación multifactor (MFA)?",
             "weight": 0.9
         },
         {
             "id": "PR_002",
-            "category": "PR.AT",
             "question": "¿El personal recibe capacitación regular en concientización de ciberseguridad?",
             "weight": 0.8
         },
         {
             "id": "PR_003",
-            "category": "PR.DS",
             "question": "¿Los datos sensibles están clasificados y protegidos adecuadamente?",
             "weight": 1.0
         },
         {
             "id": "PR_004",
-            "category": "PR.IP",
-            "question": "¿Existen procedimientos documentados para la gestión de incidentes?",
-            "weight": 0.8
-        },
-        {
-            "id": "PR_005",
-            "category": "PR.PT",
             "question": "¿Se mantienen actualizados todos los sistemas con los últimos parches de seguridad?",
             "weight": 0.9
         }
@@ -190,19 +134,16 @@ ASSESSMENT_QUESTIONS = {
     "Detect": [
         {
             "id": "DE_001",
-            "category": "DE.AE",
             "question": "¿Existe un sistema de monitoreo continuo para detectar anomalías?",
             "weight": 0.9
         },
         {
             "id": "DE_002",
-            "category": "DE.CM",
             "question": "¿Se monitorean continuamente los logs de seguridad?",
             "weight": 0.8
         },
         {
             "id": "DE_003",
-            "category": "DE.DP",
             "question": "¿Existen procesos formales para la detección de amenazas?",
             "weight": 0.7
         }
@@ -210,19 +151,16 @@ ASSESSMENT_QUESTIONS = {
     "Respond": [
         {
             "id": "RS_001",
-            "category": "RS.RP",
             "question": "¿Existe un plan de respuesta a incidentes documentado y probado?",
             "weight": 1.0
         },
         {
             "id": "RS_002",
-            "category": "RS.CO",
             "question": "¿Están definidos los canales de comunicación durante incidentes?",
             "weight": 0.8
         },
         {
             "id": "RS_003",
-            "category": "RS.MI",
             "question": "¿Existen procedimientos para contener y mitigar incidentes?",
             "weight": 0.9
         }
@@ -230,17 +168,24 @@ ASSESSMENT_QUESTIONS = {
     "Recover": [
         {
             "id": "RC_001",
-            "category": "RC.RP",
             "question": "¿Existe un plan de continuidad de negocio actualizado?",
             "weight": 1.0
         },
         {
             "id": "RC_002",
-            "category": "RC.IM",
             "question": "¿Se documentan las lecciones aprendidas después de incidentes?",
             "weight": 0.7
         }
     ]
+}
+
+# Datos de ejemplo para benchmarks
+DEMO_BENCHMARKS = {
+    "Tecnología": {"avg_score": 72.5, "total_assessments": 45},
+    "Servicios Financieros": {"avg_score": 68.2, "total_assessments": 32},
+    "Manufactura": {"avg_score": 65.8, "total_assessments": 28},
+    "Salud": {"avg_score": 70.1, "total_assessments": 22},
+    "Gobierno": {"avg_score": 74.3, "total_assessments": 18}
 }
 
 class NISTAssessment:
@@ -261,7 +206,7 @@ class NISTAssessment:
             response = self.responses.get(question["id"], 0)
             weighted_score += response * question["weight"]
             
-        return (weighted_score / total_weight) * 100 if total_weight > 0 else 0.0
+        return (weighted_score / total_weight) * 20 if total_weight > 0 else 0.0  # Convert 0-5 to 0-100
     
     def calculate_overall_score(self) -> float:
         """Calcula el puntaje general del assessment"""
@@ -316,7 +261,7 @@ def main():
     assessment = st.session_state.assessment
     
     # Pestañas principales
-    tab1, tab2, tab3, tab4 = st.tabs(["📊 Assessment", "📈 Resultados", "🗺️ Roadmap", "📑 Reporte"])
+    tab1, tab2, tab3, tab4 = st.tabs(["📊 Assessment", "📈 Resultados", "🗺️ Roadmap", "📊 Benchmarks"])
     
     with tab1:
         st.header("🔍 Evaluación NIST Cybersecurity Framework")
@@ -338,7 +283,7 @@ def main():
         # Assessment por función NIST
         for function_name, function_data in NIST_FRAMEWORK.items():
             with st.expander(f"{function_name} - {function_data['description']}", expanded=False):
-                st.write(f"**Categorías:** {', '.join(function_data['categories'].values())}")
+                st.write(f"**Categorías:** {', '.join(function_data['categories'])}")
                 
                 questions = ASSESSMENT_QUESTIONS.get(function_name, [])
                 for question in questions:
@@ -408,6 +353,25 @@ def main():
                 st.metric("Nivel de Madurez", maturity_level, delta=None)
             with col3:
                 st.metric("Progreso", f"{progress:.1%}", delta=None)
+                
+            # Comparación con la industria
+            if industry and industry != "Seleccionar...":
+                benchmark = DEMO_BENCHMARKS.get(industry)
+                if benchmark:
+                    st.subheader(f"📊 Comparación con la Industria: {industry}")
+                    
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        delta_score = overall_score - benchmark['avg_score']
+                        st.metric(
+                            "vs. Promedio Industria", 
+                            f"{benchmark['avg_score']:.1f}%",
+                            delta=f"{delta_score:+.1f}%"
+                        )
+                    with col2:
+                        percentile = 50 + (delta_score / 30) * 50  # Aproximación simple
+                        percentile = max(5, min(95, percentile))
+                        st.metric("Percentil Estimado", f"{percentile:.0f}%")
         else:
             st.info("Complete el assessment para ver los resultados.")
     
@@ -428,113 +392,80 @@ def main():
             
             st.write("**Prioridad de Mejora (basada en puntajes más bajos):**")
             
+            recommendations = {
+                "Identify": [
+                    "Implementar un sistema de gestión de activos (CMDB)",
+                    "Desarrollar políticas de clasificación de información",
+                    "Establecer un programa formal de evaluación de riesgos"
+                ],
+                "Protect": [
+                    "Implementar autenticación multifactor en todos los sistemas críticos",
+                    "Desarrollar un programa de capacitación en ciberseguridad",
+                    "Establecer controles de acceso basados en roles"
+                ],
+                "Detect": [
+                    "Implementar un SIEM (Security Information and Event Management)",
+                    "Establecer monitoreo continuo de la red",
+                    "Desarrollar capacidades de threat hunting"
+                ],
+                "Respond": [
+                    "Desarrollar y probar un plan de respuesta a incidentes",
+                    "Establecer un equipo de respuesta a incidentes (CSIRT)",
+                    "Implementar procedimientos de comunicación de crisis"
+                ],
+                "Recover": [
+                    "Desarrollar un plan de continuidad de negocio",
+                    "Implementar backups automatizados y probados",
+                    "Establecer un plan de recuperación ante desastres"
+                ]
+            }
+            
             for i, (function_name, score) in enumerate(sorted_functions, 1):
                 priority_color = ["🔴", "🟡", "🟢", "🔵", "🟣"][i-1]
-                st.markdown(f"""
-                <div class="framework-section">
-                    <h4>{priority_color} Prioridad {i}: {function_name} ({score:.1f}%)</h4>
-                    <p>{NIST_FRAMEWORK[function_name]['description']}</p>
-                    <strong>Acciones recomendadas:</strong>
-                    <ul>
-                """, unsafe_allow_html=True)
                 
-                # Recomendaciones específicas por función
-                recommendations = get_recommendations(function_name, score)
-                for rec in recommendations:
-                    st.markdown(f"<li>{rec}</li>", unsafe_allow_html=True)
-                
-                st.markdown("</ul></div>", unsafe_allow_html=True)
+                with st.expander(f"{priority_color} Prioridad {i}: {function_name} ({score:.1f}%)"):
+                    st.write(f"**Descripción:** {NIST_FRAMEWORK[function_name]['description']}")
+                    st.write("**Acciones recomendadas:**")
+                    
+                    for rec in recommendations.get(function_name, []):
+                        st.write(f"• {rec}")
         else:
             st.info("Complete el assessment para generar el roadmap de mejora.")
     
     with tab4:
-        st.header("📑 Reporte Ejecutivo")
+        st.header("📊 Benchmarks de la Industria")
         
-        if answered_questions > 0 and company_name and industry != "Seleccionar...":
-            if st.button("🔄 Generar Reporte Completo", type="primary"):
-                with st.spinner("Generando reporte..."):
-                    generate_executive_report(assessment, company_name, industry, company_size)
-        else:
-            st.warning("Complete la información de la organización y el assessment para generar el reporte.")
-
-def get_recommendations(function_name: str, score: float) -> List[str]:
-    """Genera recomendaciones específicas basadas en la función y puntaje"""
-    recommendations = {
-        "Identify": [
-            "Implementar un sistema de gestión de activos (CMDB)",
-            "Desarrollar políticas de clasificación de información",
-            "Establecer un programa formal de evaluación de riesgos",
-            "Crear un marco de gobierno de ciberseguridad"
-        ],
-        "Protect": [
-            "Implementar autenticación multifactor en todos los sistemas críticos",
-            "Desarrollar un programa de capacitación en ciberseguridad",
-            "Establecer controles de acceso basados en roles",
-            "Implementar cifrado de datos en reposo y en tránsito"
-        ],
-        "Detect": [
-            "Implementar un SIEM (Security Information and Event Management)",
-            "Establecer monitoreo continuo de la red",
-            "Desarrollar capacidades de threat hunting",
-            "Implementar detección de anomalías basada en IA"
-        ],
-        "Respond": [
-            "Desarrollar y probar un plan de respuesta a incidentes",
-            "Establecer un equipo de respuesta a incidentes (CSIRT)",
-            "Implementar procedimientos de comunicación de crisis",
-            "Desarrollar playbooks para tipos comunes de incidentes"
-        ],
-        "Recover": [
-            "Desarrollar un plan de continuidad de negocio",
-            "Implementar backups automatizados y probados",
-            "Establecer un plan de recuperación ante desastres",
-            "Desarrollar procedimientos de lecciones aprendidas"
-        ]
-    }
-    
-    return recommendations.get(function_name, ["Consultar con especialistas en ciberseguridad"])
-
-def generate_executive_report(assessment, company_name, industry, company_size):
-    """Genera un reporte ejecutivo completo"""
-    st.success("✅ Reporte generado exitosamente!")
-    
-    # Aquí se integraría con la base de datos para guardar el assessment
-    # Por ahora, mostramos el reporte en pantalla
-    
-    overall_score = assessment.calculate_overall_score()
-    maturity_level = assessment.get_maturity_level(overall_score)
-    
-    st.markdown(f"""
-    ## 📊 Reporte Ejecutivo de Ciberseguridad
-    
-    **Organización:** {company_name}  
-    **Industria:** {industry}  
-    **Tamaño:** {company_size}  
-    **Fecha de Evaluación:** {datetime.now().strftime("%d/%m/%Y")}
-    
-    ### 🎯 Resumen Ejecutivo
-    
-    Su organización presenta un **nivel de madurez {maturity_level}** con un puntaje general de **{overall_score:.1f}%** 
-    según el Marco de Ciberseguridad del NIST.
-    
-    ### 📈 Puntuación por Funciones
-    """)
-    
-    for function_name in NIST_FRAMEWORK.keys():
-        score = assessment.calculate_function_score(function_name)
-        st.write(f"- **{function_name}:** {score:.1f}%")
-    
-    st.markdown("""
-    ### 🎯 Recomendaciones Prioritarias
-    
-    1. **Fortalecer la función con menor puntaje**
-    2. **Implementar controles básicos de seguridad**
-    3. **Desarrollar un plan de mejora continua**
-    4. **Establecer métricas de seguimiento**
-    
-    ---
-    *Este reporte ha sido generado automáticamente basado en el NIST Cybersecurity Framework v1.1*
-    """)
+        # Mostrar benchmarks por industria
+        benchmark_df = pd.DataFrame.from_dict(DEMO_BENCHMARKS, orient='index')
+        benchmark_df.reset_index(inplace=True)
+        benchmark_df.rename(columns={'index': 'Industria', 'avg_score': 'Puntaje Promedio', 'total_assessments': 'Total Evaluaciones'}, inplace=True)
+        
+        # Gráfico de benchmarks
+        fig_benchmark = px.bar(
+            benchmark_df,
+            x='Industria',
+            y='Puntaje Promedio',
+            title="Puntaje Promedio por Industria",
+            color='Puntaje Promedio',
+            color_continuous_scale='RdYlGn'
+        )
+        fig_benchmark.update_xaxes(tickangle=45)
+        st.plotly_chart(fig_benchmark, use_container_width=True)
+        
+        # Tabla de benchmarks
+        st.subheader("📋 Datos Detallados por Industria")
+        st.dataframe(benchmark_df, use_container_width=True, hide_index=True)
+        
+        # Insights
+        st.subheader("💡 Insights del Mercado")
+        best_industry = benchmark_df.loc[benchmark_df['Puntaje Promedio'].idxmax(), 'Industria']
+        worst_industry = benchmark_df.loc[benchmark_df['Puntaje Promedio'].idxmin(), 'Industria']
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            st.success(f"🏆 **Mejor Industria:** {best_industry}")
+        with col2:
+            st.warning(f"📈 **Mayor Oportunidad:** {worst_industry}")
 
 if __name__ == "__main__":
     main()
