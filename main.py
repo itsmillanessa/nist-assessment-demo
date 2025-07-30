@@ -1,5 +1,5 @@
 def show_visual_roadmap_chart(results):
-    """Crea el gráfico visual mejorado sin dependencias numpy"""
+    """Crea el gráfico visual mejorado con diseño más profesional y natural"""
     st.markdown("""
     <div style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border: 2px solid #64748b; border-radius: 15px; padding: 1rem; margin: 1rem 0;">
         <h3 style="color: #1e293b; text-align: center; margin-bottom: 0.5rem; font-size: 1.1rem;">🗺️ FORTINET SECURITY FABRIC</h3>
@@ -18,7 +18,7 @@ def show_visual_roadmap_chart(results):
     level_names = ['Nivel 1\nInicial', 'Nivel 2\nBásico', 'Nivel 3\nIntermedio', 'Nivel 4\nAvanzado', 'Nivel 5\nExcelencia']
     level_descriptions = ['Fundamentos\n(0-3 meses)', 'Consolidación\n(3-6 meses)', 'Detección Avanzada\n(6-12 meses)', 'Optimización\n(12-18 meses)', 'Zero Trust & AI\n(18-24 meses)']
     
-    # FONDO NATURAL: Crear zonas más profesionales
+    # FONDO NATURAL: Crear un degradado de fondo más natural
     for i in range(5):
         # Zona principal con gradiente suave
         fig.add_shape(
@@ -44,7 +44,7 @@ def show_visual_roadmap_chart(results):
             x=i+1, y=5.8,
             text=f"<b>{level_names[i]}</b>",
             showarrow=False,
-            font=dict(size=10, color='#1e293b'),
+            font=dict(size=10, color='#1e293b', family="Inter"),
             align="center",
             bgcolor="rgba(255, 255, 255, 0.9)",
             bordercolor=level_borders[i],
@@ -52,20 +52,21 @@ def show_visual_roadmap_chart(results):
             borderpad=4
         )
         
-        # Timeline en la parte inferior
+        # Timeline en la parte inferior más sutil
         fig.add_annotation(
             x=i+1, y=0.4,
             text=level_descriptions[i],
             showarrow=False,
-            font=dict(size=8, color='#64748b'),
+            font=dict(size=8, color='#64748b', family="Inter"),
             align="center"
         )
     
-    # CURVA DE MADUREZ: Línea más suave usando puntos calculados
-    x_curve = [0.6, 1.0, 2.0, 3.0, 4.0, 5.0, 5.4]
-    y_curve = [0.8, 1.5, 2.8, 4.0, 4.8, 5.2, 5.3]
+    # CURVA DE MADUREZ: Línea más suave y profesional
+    x_curve = np.linspace(0.6, 5.4, 20)  # Más puntos para suavidad
+    # Función exponencial suave para madurez natural
+    y_curve = 0.8 + 4.2 * (1 - np.exp(-0.8 * (x_curve - 0.6))) + 0.1 * np.sin(2 * np.pi * (x_curve - 0.6) / 5)
     
-    # Curva principal
+    # Gradiente en la línea de madurez
     fig.add_trace(go.Scatter(
         x=x_curve,
         y=y_curve,
@@ -80,11 +81,21 @@ def show_visual_roadmap_chart(results):
         name='Curva de Madurez'
     ))
     
+    # Sombra de la curva para profundidad
+    fig.add_trace(go.Scatter(
+        x=x_curve,
+        y=y_curve - 0.1,
+        mode='lines',
+        line=dict(color='rgba(67, 56, 202, 0.2)', width=8),
+        showlegend=False,
+        fill=None
+    ))
+    
     # Hitos importantes en la curva
     milestone_positions = [1, 2, 3, 4, 5]
-    milestone_y = [1.5, 2.8, 4.0, 4.8, 5.2]
-    
-    for i, (pos, y_pos) in enumerate(zip(milestone_positions, milestone_y)):
+    for pos in milestone_positions:
+        y_pos = 0.8 + 4.2 * (1 - np.exp(-0.8 * (pos - 0.6))) + 0.1 * np.sin(2 * np.pi * (pos - 0.6) / 5)
+        
         fig.add_trace(go.Scatter(
             x=[pos],
             y=[y_pos],
@@ -126,7 +137,7 @@ def show_visual_roadmap_chart(results):
             # Posición más natural
             count = phase_product_counts[phase]
             x_offset = (count % 5 - 2) * 0.05  # Distribución horizontal más sutil
-            y_pos = y_min + (y_max - y_min) * (count / 10.0) + (count % 3 - 1) * 0.05
+            y_pos = y_min + (y_max - y_min) * (count / 10.0) + np.random.uniform(-0.05, 0.05)
             
             x_pos = phase + x_offset
             phase_product_counts[phase] += 1
@@ -166,7 +177,7 @@ def show_visual_roadmap_chart(results):
                 ),
                 text=[product_display],
                 textposition="top center",
-                textfont=dict(size=6, color='#1e293b'),
+                textfont=dict(size=6, color='#1e293b', family="Inter"),
                 showlegend=False,
                 name=product_name,
                 hovertemplate=(
@@ -213,7 +224,7 @@ def show_visual_roadmap_chart(results):
         arrowcolor="#dc2626",
         ax=0,
         ay=-30,
-        font=dict(size=10, color='#dc2626'),
+        font=dict(size=10, color='#dc2626', family="Inter Bold"),
         bgcolor="rgba(255, 255, 255, 0.95)",
         bordercolor="#dc2626",
         borderwidth=2,
@@ -222,8 +233,7 @@ def show_visual_roadmap_chart(results):
     
     # Indicador en la curva de madurez
     if current_level <= 5:
-        curve_y_values = {1: 1.5, 2: 2.8, 3: 4.0, 4: 4.8, 5: 5.2}
-        curve_y = curve_y_values.get(current_level, 3.0)
+        curve_y = 0.8 + 4.2 * (1 - np.exp(-0.8 * (current_level - 0.6))) + 0.1 * np.sin(2 * np.pi * (current_level - 0.6) / 5)
         
         fig.add_trace(go.Scatter(
             x=[current_level],
@@ -257,7 +267,7 @@ def show_visual_roadmap_chart(results):
             "💙 <b>Curva Azul:</b> Trayectoria natural de evolución hacia la excelencia"
         ),
         showarrow=False,
-        font=dict(size=9, color='#374151'),
+        font=dict(size=9, color='#374151', family="Inter"),
         align="center",
         bgcolor="rgba(248, 250, 252, 0.98)",
         bordercolor="#cbd5e1",
@@ -270,7 +280,7 @@ def show_visual_roadmap_chart(results):
         title={
             'text': "🛡️ FORTINET SECURITY FABRIC - ROADMAP DE MADUREZ PROFESIONAL",
             'x': 0.5,
-            'font': {'size': 16, 'color': '#1e293b'}
+            'font': {'size': 16, 'color': '#1e293b', 'family': "Inter Bold"}
         },
         height=550,
         showlegend=False,
@@ -285,13 +295,13 @@ def show_visual_roadmap_chart(results):
         range=[0.5, 5.5],
         title={
             'text': "→ Evolución Natural de Madurez en Ciberseguridad",
-            'font': {'size': 12, 'color': '#374151'}
+            'font': {'size': 12, 'color': '#374151', 'family': "Inter"}
         },
         tickvals=[1, 2, 3, 4, 5],
         ticktext=['Nivel 1', 'Nivel 2', 'Nivel 3', 'Nivel 4', 'Nivel 5'],
         showgrid=False,
         zeroline=False,
-        tickfont={'size': 10},
+        tickfont={'size': 10, 'family': "Inter"},
         linecolor='#cbd5e1',
         linewidth=1
     )
@@ -300,7 +310,7 @@ def show_visual_roadmap_chart(results):
         range=[0, 6],
         title={
             'text': "↑ Amplitud y Profundidad de Cobertura",
-            'font': {'size': 12, 'color': '#374151'}
+            'font': {'size': 12, 'color': '#374151', 'family': "Inter"}
         },
         showticklabels=False,
         showgrid=True,
