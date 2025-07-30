@@ -1059,6 +1059,10 @@ def show_simplified_timeline(results):
         </div>
     </div>
     """.format((current_level / 5) * 100, int((current_level / 5) * 100)), unsafe_allow_html=True)
+    
+    # Agregar el gráfico visual interactivo como en la imagen
+    st.markdown("---")
+    show_visual_roadmap_chart(results)
 
 def show_current_analysis(results):
     st.subheader("📊 Análisis del Estado Actual")
@@ -1336,6 +1340,223 @@ def show_next_steps_recommendations(results):
     
     df_roadmap = pd.DataFrame(phases_data)
     st.dataframe(df_roadmap, use_container_width=True, hide_index=True)
+
+def show_visual_roadmap_chart(results):
+    """Crea el gráfico visual interactivo como en la imagen de referencia"""
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border: 2px solid #64748b; border-radius: 20px; padding: 2rem; margin: 2rem 0;">
+        <h3 style="color: #1e293b; text-align: center; margin-bottom: 1.5rem;">🗺️ FORTINET SECURITY FABRIC - ROADMAP DE MADUREZ</h3>
+        <p style="text-align: center; color: #64748b; margin-bottom: 1rem;">ROADMAP COMPLETO - TODAS LAS TECNOLOGÍAS</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    current_level = results['maturity_level']
+    
+    # Crear figura con subplots
+    fig = go.Figure()
+    
+    # Configurar el fondo con zonas de color por nivel
+    level_colors = ['#fee2e2', '#fed7aa', '#dbeafe', '#dcfce7', '#f3e8ff']
+    level_names = ['Nivel 1\nInicial', 'Nivel 2\nBásico', 'Nivel 3\nIntermedio', 'Nivel 4\nAvanzado', 'Nivel 5\nExcelencia']
+    
+    # Agregar zonas de fondo por nivel
+    for i, (color, name) in enumerate(zip(level_colors, level_names)):
+        fig.add_shape(
+            type="rect",
+            x0=i+0.7, y0=0, x1=i+1.3, y1=6,
+            fillcolor=color,
+            opacity=0.3,
+            layer="below",
+            line_width=0,
+        )
+        
+        # Agregar etiquetas de nivel en la parte superior
+        fig.add_annotation(
+            x=i+1, y=5.8,
+            text=f"<b>{name}</b>",
+            showarrow=False,
+            font=dict(size=12, color='#1e293b'),
+            align="center"
+        )
+    
+    # Línea principal del roadmap
+    fig.add_trace(go.Scatter(
+        x=[0.7, 5.3],
+        y=[0.5, 5.5],
+        mode='lines',
+        line=dict(color='#94a3b8', width=4, dash='dot'),
+        showlegend=False,
+        name='Roadmap Path'
+    ))
+    
+    # Datos de posicionamiento para productos (simulando la imagen)
+    product_positions = {}
+    y_offset_base = [0.8, 1.2, 1.6, 2.0, 2.4, 2.8, 3.2, 3.6, 4.0, 4.4]
+    
+    # Posicionar productos por fase
+    for category_name, category_data in FORTINET_COMPLETE_PORTFOLIO.items():
+        for product_name, product_info in category_data["products"].items():
+            phase = product_info['implementation_phase']
+            
+            # Verificar si está implementado
+            product_key = f"{category_name}_{product_name}"
+            is_implemented = st.session_state.professional_assessment["fortinet_products"].get(product_key, False)
+            
+            # Calcular posición con algo de variación
+            base_y = y_offset_base[hash(product_name) % len(y_offset_base)]
+            y_pos = base_y + np.random.uniform(-0.15, 0.15)
+            x_pos = phase + np.random.uniform(-0.25, 0.25)
+            
+            # Color y tamaño según implementación
+            if is_implemented:
+                color = '#10b981'  # Verde para implementado
+                size = 16
+                symbol = 'circle'
+                opacity = 1.0
+            else:
+                color = '#e5e7eb'  # Gris para no implementado
+                size = 12
+                symbol = 'circle-open'
+                opacity = 0.7
+            
+            # Agregar punto del producto
+            fig.add_trace(go.Scatter(
+                x=[x_pos],
+                y=[y_pos],
+                mode='markers+text',
+                marker=dict(
+                    size=size,
+                    color=color,
+                    symbol=symbol,
+                    line=dict(color='white', width=2),
+                    opacity=opacity
+                ),
+                text=[product_name.replace('Forti', '').replace(' ', '<br>')],
+                textposition="top center",
+                textfont=dict(size=8, color='#1e293b'),
+                showlegend=False,
+                name=product_name,
+                hovertemplate=f"<b>{product_name}</b><br>" +
+                             f"Categoría: {category_name}<br>" +
+                             f"Fase: {phase}<br>" +
+                             f"NIST: {product_info['nist_function']}<br>" +
+                             f"Estado: {'✅ Implementado' if is_implemented else '⭕ No implementado'}<br>" +
+                             "<extra></extra>"
+            ))
+    
+    # Marcar posición actual del usuario
+    fig.add_trace(go.Scatter(
+        x=[current_level],
+        y=[5.2],
+        mode='markers+text',
+        marker=dict(
+            size=35,
+            color='#dc2626',
+            symbol='star',
+            line=dict(color='#7f1d1d', width=3)
+        ),
+        text=['USTED ESTÁ AQUÍ'],
+        textposition="bottom center",
+        textfont=dict(size=12, color='#dc2626', family="Arial Black"),
+        showlegend=False,
+        name="Posición Actual"
+    ))
+    
+    # Agregar leyenda manual en el gráfico
+    fig.add_annotation(
+        x=0.5, y=0.3,
+        text="🗺️ Roadmap con 40+ tecnologías de Fortinet Security Fabric<br>" +
+             "🛡️ Cobertura end-to-end: Desde Inicial hasta Excelencia (Niveles 1-5)<br>" +
+             "⭐ Use este roadmap para planificar su evolución de seguridad a largo plazo",
+        showarrow=False,
+        font=dict(size=10, color='#475569'),
+        align="left",
+        bgcolor="rgba(248, 250, 252, 0.8)",
+        bordercolor="#cbd5e1",
+        borderwidth=1
+    )
+    
+    # Configuración del gráfico
+    fig.update_layout(
+        title={
+            'text': "🛡️ FORTINET SECURITY FABRIC - ROADMAP COMPLETO - TODAS LAS TECNOLOGÍAS",
+            'x': 0.5,
+            'xanchor': 'center',
+            'font': {'size': 16, 'family': 'Arial Black', 'color': '#dc2626'}
+        },
+        xaxis=dict(
+            range=[0.5, 5.5],
+            title="Niveles de Madurez →",
+            titlefont=dict(size=14, color='#1e293b'),
+            tickvals=[1, 2, 3, 4, 5],
+            ticktext=['Nivel 1', 'Nivel 2', 'Nivel 3', 'Nivel 4', 'Nivel 5'],
+            showgrid=True,
+            gridcolor='rgba(203, 213, 225, 0.3)',
+            zeroline=False
+        ),
+        yaxis=dict(
+            range=[0, 6],
+            title="↑ Cobertura Security Fabric",
+            titlefont=dict(size=14, color='#1e293b'),
+            showticklabels=False,
+            showgrid=True,
+            gridcolor='rgba(203, 213, 225, 0.3)',
+            zeroline=False
+        ),
+        height=700,
+        showlegend=False,
+        plot_bgcolor='white',
+        paper_bgcolor='white',
+        hovermode='closest',
+        margin=dict(t=80, b=60, l=60, r=60)
+    )
+    
+    # Mostrar el gráfico
+    st.plotly_chart(fig, use_container_width=True, key="roadmap_chart")
+    
+    # Agregar estadísticas del roadmap
+    show_roadmap_statistics(results)
+
+def show_roadmap_statistics(results):
+    """Muestra estadísticas del roadmap"""
+    total_products = sum(len(cat["products"]) for cat in FORTINET_COMPLETE_PORTFOLIO.values())
+    implemented_products = sum(1 for v in st.session_state.professional_assessment["fortinet_products"].values() if v)
+    
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        st.metric(
+            "Productos Totales",
+            total_products,
+            "En el roadmap"
+        )
+    
+    with col2:
+        st.metric(
+            "Productos Implementados",
+            implemented_products,
+            f"{(implemented_products/total_products)*100:.1f}% completado"
+        )
+    
+    with col3:
+        products_next_phase = sum(
+            1 for cat in FORTINET_COMPLETE_PORTFOLIO.values()
+            for product_info in cat["products"].values()
+            if product_info["implementation_phase"] == results['maturity_level'] + 1
+        )
+        st.metric(
+            "Próxima Fase",
+            products_next_phase,
+            "productos recomendados"
+        )
+    
+    with col4:
+        coverage = sum(1 for cat in FORTINET_COMPLETE_PORTFOLIO.keys() if has_coverage_in_category(cat))
+        st.metric(
+            "Cobertura de Categorías",
+            f"{coverage}/{len(FORTINET_COMPLETE_PORTFOLIO)}",
+            f"{(coverage/len(FORTINET_COMPLETE_PORTFOLIO))*100:.0f}%"
+        )
 
 if __name__ == "__main__":
     main()
