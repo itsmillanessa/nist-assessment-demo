@@ -1342,7 +1342,7 @@ def show_next_steps_recommendations(results):
     st.dataframe(df_roadmap, use_container_width=True, hide_index=True)
 
 def show_visual_roadmap_chart(results):
-    """Crea el gráfico visual interactivo como en la imagen de referencia"""
+    """Crea el gráfico visual interactivo mejorado como en la imagen de referencia"""
     st.markdown("""
     <div style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border: 2px solid #64748b; border-radius: 20px; padding: 2rem; margin: 2rem 0;">
         <h3 style="color: #1e293b; text-align: center; margin-bottom: 1.5rem;">🗺️ FORTINET SECURITY FABRIC - ROADMAP DE MADUREZ</h3>
@@ -1355,21 +1355,71 @@ def show_visual_roadmap_chart(results):
     # Crear figura básica
     fig = go.Figure()
     
-    # Línea principal del roadmap
+    # Definir colores y etiquetas por nivel
+    level_colors = ['#ffebee', '#fff3e0', '#e3f2fd', '#e8f5e8', '#f3e5f5']  # Colores pastel
+    level_names = ['Nivel 1\nInicial', 'Nivel 2\nBásico', 'Nivel 3\nIntermedio', 'Nivel 4\nAvanzado', 'Nivel 5\nExcelencia']
+    level_descriptions = ['Fundamentos', 'Consolidación', 'Detección Avanzada', 'Optimización', 'Zero Trust & AI']
+    
+    # Agregar zonas de fondo coloreadas por nivel
+    for i in range(5):
+        fig.add_shape(
+            type="rect",
+            x0=i+0.7, y0=0, x1=i+1.3, y1=6,
+            fillcolor=level_colors[i],
+            opacity=0.6,
+            layer="below",
+            line_width=0,
+        )
+        
+        # Agregar etiquetas de nivel en la parte superior
+        fig.add_annotation(
+            x=i+1, y=5.8,
+            text=f"<b>{level_names[i]}</b>",
+            showarrow=False,
+            font=dict(size=11, color='#1e293b', family="Arial Black"),
+            align="center"
+        )
+        
+        # Agregar descripción en la parte inferior
+        fig.add_annotation(
+            x=i+1, y=0.2,
+            text=level_descriptions[i],
+            showarrow=False,
+            font=dict(size=9, color='#64748b'),
+            align="center"
+        )
+    
+    # Línea principal del roadmap (más prominente y colorida)
     fig.add_trace(go.Scatter(
         x=[0.7, 5.3],
-        y=[0.5, 5.5],
+        y=[0.8, 5.2],
         mode='lines',
-        line=dict(color='#94a3b8', width=4, dash='dot'),
+        line=dict(color='#4f46e5', width=6, dash='solid'),
         showlegend=False,
-        name='Roadmap Path'
+        name='Roadmap Principal'
     ))
     
-    # Datos de posicionamiento para productos
-    y_positions = [0.8, 1.2, 1.6, 2.0, 2.4, 2.8, 3.2, 3.6, 4.0, 4.4]
-    product_count = 0
+    # Líneas punteadas verticales para separar niveles
+    for i in range(1, 6):
+        fig.add_shape(
+            type="line",
+            x0=i+0.5, y0=0, x1=i+0.5, y1=6,
+            line=dict(color='#cbd5e1', width=1, dash='dot'),
+            layer="below"
+        )
     
-    # Posicionar productos por fase
+    # Distribuir productos de manera más organizada
+    y_levels = {
+        1: [1.0, 1.4, 1.8, 2.2, 2.6, 3.0, 3.4],  # Nivel 1
+        2: [1.2, 1.6, 2.0, 2.4, 2.8, 3.2, 3.6],  # Nivel 2  
+        3: [1.4, 1.8, 2.2, 2.6, 3.0, 3.4, 3.8],  # Nivel 3
+        4: [1.6, 2.0, 2.4, 2.8, 3.2, 3.6, 4.0],  # Nivel 4
+        5: [1.8, 2.2, 2.6, 3.0, 3.4, 3.8, 4.2]   # Nivel 5
+    }
+    
+    phase_counters = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+    
+    # Posicionar productos por fase de manera organizada
     for category_name, category_data in FORTINET_COMPLETE_PORTFOLIO.items():
         for product_name, product_info in category_data["products"].items():
             phase = product_info['implementation_phase']
@@ -1378,19 +1428,28 @@ def show_visual_roadmap_chart(results):
             product_key = f"{category_name}_{product_name}"
             is_implemented = st.session_state.professional_assessment["fortinet_products"].get(product_key, False)
             
-            # Calcular posición
-            y_pos = y_positions[product_count % len(y_positions)]
-            x_pos = phase + (product_count % 5 - 2) * 0.1  # Variación horizontal pequeña
+            # Posición organizada por fase
+            y_index = phase_counters[phase] % len(y_levels[phase])
+            y_pos = y_levels[phase][y_index]
+            x_pos = phase + (phase_counters[phase] // len(y_levels[phase])) * 0.15 - 0.15
             
-            # Color y tamaño según implementación
+            phase_counters[phase] += 1
+            
+            # Color y estilo según implementación y fase
             if is_implemented:
-                color = '#10b981'  # Verde para implementado
-                size = 16
+                color = '#10b981'  # Verde vibrante para implementado
+                size = 18
                 symbol = 'circle'
+                line_color = '#059669'
+                line_width = 3
             else:
-                color = '#e5e7eb'  # Gris para no implementado
-                size = 12
+                # Colores diferentes según la fase para productos no implementados
+                phase_colors = {1: '#ef4444', 2: '#f97316', 3: '#3b82f6', 4: '#10b981', 5: '#8b5cf6'}
+                color = phase_colors[phase]
+                size = 14
                 symbol = 'circle-open'
+                line_color = color
+                line_width = 2
             
             # Agregar punto del producto
             fig.add_trace(go.Scatter(
@@ -1401,62 +1460,100 @@ def show_visual_roadmap_chart(results):
                     size=size,
                     color=color,
                     symbol=symbol,
-                    line=dict(color='white', width=2)
+                    line=dict(color=line_color, width=line_width),
+                    opacity=0.9
                 ),
-                text=[product_name.replace('Forti', '')],
+                text=[product_name.replace('Forti', '').replace(' ', '<br>')],
                 textposition="top center",
-                textfont=dict(size=8, color='#1e293b'),
+                textfont=dict(size=7, color='#1e293b', family="Arial"),
                 showlegend=False,
                 name=product_name,
-                hovertext=f"{product_name}<br>Categoría: {category_name}<br>Fase: {phase}<br>Estado: {'✅ Implementado' if is_implemented else '⭕ No implementado'}"
+                hovertext=f"<b>{product_name}</b><br>📁 {category_name}<br>📊 Fase {phase}<br>🎯 {product_info['nist_function']}<br>{'✅ Implementado' if is_implemented else '⭕ Recomendado'}"
             ))
-            
-            product_count += 1
     
-    # Marcar posición actual del usuario
+    # Marcar posición actual del usuario con estilo mejorado
     fig.add_trace(go.Scatter(
         x=[current_level],
-        y=[5.2],
+        y=[5.4],
         mode='markers+text',
         marker=dict(
-            size=35,
+            size=40,
             color='#dc2626',
             symbol='star',
-            line=dict(color='#7f1d1d', width=3)
+            line=dict(color='#991b1b', width=4)
         ),
         text=['USTED ESTÁ AQUÍ'],
         textposition="bottom center",
-        textfont=dict(size=12, color='#dc2626'),
+        textfont=dict(size=14, color='#dc2626', family="Arial Black"),
         showlegend=False,
         name="Posición Actual"
     ))
     
-    # Configuración simplificada del gráfico
+    # Agregar indicador de progreso en la línea principal
+    progress_x = [0.7 + (current_level - 1) * (4.6 / 4)]
+    progress_y = [0.8 + (current_level - 1) * (4.4 / 4)]
+    
+    fig.add_trace(go.Scatter(
+        x=progress_x,
+        y=progress_y,
+        mode='markers',
+        marker=dict(
+            size=25,
+            color='#dc2626',
+            symbol='circle',
+            line=dict(color='white', width=3)
+        ),
+        showlegend=False,
+        name="Progreso Actual"
+    ))
+    
+    # Agregar leyenda informativa
+    fig.add_annotation(
+        x=2.5, y=0.5,
+        text="🗺️ <b>Roadmap con 40+ tecnologías de Fortinet Security Fabric</b><br>" +
+             "🛡️ <b>Cobertura end-to-end:</b> Desde Inicial hasta Excelencia (Niveles 1-5)<br>" +
+             "⭐ <b>Círculos verdes:</b> Tecnologías implementadas | <b>Círculos abiertos:</b> Recomendadas<br>" +
+             "🎯 <b>Siga la línea azul</b> para su evolución de seguridad a largo plazo",
+        showarrow=False,
+        font=dict(size=10, color='#374151'),
+        align="center",
+        bgcolor="rgba(255, 255, 255, 0.9)",
+        bordercolor="#d1d5db",
+        borderwidth=2,
+        borderpad=10
+    )
+    
+    # Configuración mejorada del gráfico
     fig.update_layout(
-        title="🛡️ FORTINET SECURITY FABRIC - ROADMAP VISUAL COMPLETO",
-        xaxis_title="Niveles de Madurez →",
-        yaxis_title="↑ Cobertura Security Fabric",
-        height=700,
+        title=dict(
+            text="🛡️ FORTINET SECURITY FABRIC - ROADMAP VISUAL COMPLETO",
+            x=0.5,
+            font=dict(size=18, color='#dc2626', family="Arial Black")
+        ),
+        xaxis=dict(
+            range=[0.5, 5.5],
+            title="<b>→ Evolución de Madurez en Ciberseguridad</b>",
+            titlefont=dict(size=14, color='#1e293b'),
+            tickvals=[1, 2, 3, 4, 5],
+            ticktext=['Nivel 1', 'Nivel 2', 'Nivel 3', 'Nivel 4', 'Nivel 5'],
+            showgrid=False,
+            zeroline=False,
+            tickfont=dict(size=12, color='#374151')
+        ),
+        yaxis=dict(
+            range=[0, 6],
+            title="<b>↑ Amplitud de Cobertura Security Fabric</b>",
+            titlefont=dict(size=14, color='#1e293b'),
+            showticklabels=False,
+            showgrid=False,
+            zeroline=False
+        ),
+        height=750,
         showlegend=False,
         plot_bgcolor='white',
         paper_bgcolor='white',
-        hovermode='closest'
-    )
-    
-    # Configurar ejes
-    fig.update_xaxes(
-        range=[0.5, 5.5],
-        tickvals=[1, 2, 3, 4, 5],
-        ticktext=['Nivel 1', 'Nivel 2', 'Nivel 3', 'Nivel 4', 'Nivel 5'],
-        showgrid=True,
-        gridcolor='rgba(203, 213, 225, 0.3)'
-    )
-    
-    fig.update_yaxes(
-        range=[0, 6],
-        showticklabels=False,
-        showgrid=True,
-        gridcolor='rgba(203, 213, 225, 0.3)'
+        hovermode='closest',
+        font=dict(family="Arial, sans-serif")
     )
     
     # Mostrar el gráfico
