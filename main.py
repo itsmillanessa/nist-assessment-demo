@@ -2,20 +2,21 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import numpy as np
-from datetime import datetime
+from datetime import datetime, timedelta
 import uuid
 from typing import Dict, List
 
 # Configuración de página
 st.set_page_config(
-    page_title="Fortinet Security Fabric - NIST Assessment",
+    page_title="Fortinet Security Fabric - Enhanced Roadmap",
     page_icon="🛡️",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# CSS mejorado
+# CSS mejorado con estilos para timeline
 st.markdown("""
 <style>
     .main-header {
@@ -55,68 +56,57 @@ st.markdown("""
         font-size: 1.2rem;
     }
     
-    .industry-card, .size-card {
+    .timeline-container {
+        background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+        border: 2px solid #4caf50;
+        border-radius: 15px;
+        padding: 2rem;
+        margin: 2rem 0;
+    }
+    
+    .phase-card {
         background: white;
         border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 1rem;
+        margin: 0.5rem 0;
+        transition: all 0.3s ease;
+    }
+    
+    .phase-card:hover {
+        border-color: #4caf50;
+        box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+    }
+    
+    .fortinet-section {
+        background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+        border: 2px solid #d32f2f;
         border-radius: 15px;
         padding: 1.5rem;
-        margin: 0.5rem;
-        text-align: center;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        height: 140px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-    }
-    
-    .industry-card:hover, .size-card:hover {
-        border-color: #d32f2f;
-        box-shadow: 0 5px 20px rgba(211, 47, 47, 0.3);
-        transform: translateY(-3px);
-    }
-    
-    .industry-card.selected, .size-card.selected {
-        border-color: #d32f2f;
-        background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
-        box-shadow: 0 5px 20px rgba(211, 47, 47, 0.4);
-    }
-    
-    .product-selection-container {
-        background: white;
-        border: 2px solid #e0e0e0;
-        border-radius: 15px;
-        padding: 1rem;
-        margin: 0.5rem;
-        transition: all 0.3s ease;
-    }
-    
-    .product-selection-container:hover {
-        border-color: #d32f2f;
-        box-shadow: 0 5px 15px rgba(211, 47, 47, 0.2);
-    }
-    
-    .non-fortinet-container {
-        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-        border: 2px solid #2196f3;
-        border-radius: 15px;
-        padding: 1rem;
         margin: 1rem 0;
-        text-align: center;
     }
     
-    .progress-container {
-        background: #f8f9fa;
-        padding: 1rem;
-        border-radius: 10px;
+    .non-fortinet-section {
+        background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+        border: 2px solid #4caf50;
+        border-radius: 15px;
+        padding: 1.5rem;
         margin: 1rem 0;
-        border-left: 4px solid #4caf50;
+    }
+    
+    .technology-tag {
+        background: #e3f2fd;
+        border: 1px solid #2196f3;
+        border-radius: 20px;
+        padding: 0.3rem 0.8rem;
+        margin: 0.2rem;
+        display: inline-block;
+        font-size: 0.8rem;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# Portfolio COMPLETO de Fortinet
+# Portfolio solo Fortinet con fases de implementación
 FORTINET_COMPLETE_PORTFOLIO = {
     "Network Security": {
         "icon": "🔥",
@@ -127,49 +117,57 @@ FORTINET_COMPLETE_PORTFOLIO = {
                 "description": "Next-Generation Firewall con inspección profunda de paquetes",
                 "nist_function": "Protect",
                 "impact": 5,
-                "maturity_level": 2
+                "maturity_level": 2,
+                "implementation_phase": 1
             },
             "FortiWiFi": {
                 "description": "Wireless Security integrado con FortiGate",
                 "nist_function": "Protect", 
                 "impact": 3,
-                "maturity_level": 2
+                "maturity_level": 2,
+                "implementation_phase": 1
             },
             "FortiSwitch": {
                 "description": "Secure Switching con microsegmentación",
                 "nist_function": "Protect",
                 "impact": 4,
-                "maturity_level": 3
+                "maturity_level": 3,
+                "implementation_phase": 2
             },
             "FortiAP": {
                 "description": "Access Points seguros gestionados centralmente",
                 "nist_function": "Protect",
                 "impact": 3,
-                "maturity_level": 2
+                "maturity_level": 2,
+                "implementation_phase": 2
             },
             "FortiExtender": {
                 "description": "Conectividad LTE/5G segura para SD-WAN",
                 "nist_function": "Protect",
                 "impact": 3,
-                "maturity_level": 3
+                "maturity_level": 3,
+                "implementation_phase": 3
             },
             "FortiProxy": {
                 "description": "Secure Web Proxy con inspección SSL",
                 "nist_function": "Protect",
                 "impact": 3,
-                "maturity_level": 3
+                "maturity_level": 3,
+                "implementation_phase": 3
             },
             "FortiDDoS": {
                 "description": "Protección DDoS dedicada para data centers",
                 "nist_function": "Protect",
                 "impact": 4,
-                "maturity_level": 4
+                "maturity_level": 4,
+                "implementation_phase": 4
             },
             "FortiNAC": {
                 "description": "Network Access Control para dispositivos IoT",
                 "nist_function": "Identify",
                 "impact": 4,
-                "maturity_level": 3
+                "maturity_level": 3,
+                "implementation_phase": 3
             }
         }
     },
@@ -182,25 +180,29 @@ FORTINET_COMPLETE_PORTFOLIO = {
                 "description": "Endpoint Management & Security Suite completo",
                 "nist_function": "Protect",
                 "impact": 4,
-                "maturity_level": 2
+                "maturity_level": 2,
+                "implementation_phase": 1
             },
             "FortiEDR": {
                 "description": "Endpoint Detection & Response con IA",
                 "nist_function": "Detect",
                 "impact": 5,
-                "maturity_level": 4
+                "maturity_level": 4,
+                "implementation_phase": 3
             },
             "FortiXDR": {
                 "description": "Extended Detection & Response multiplataforma",
                 "nist_function": "Detect",
                 "impact": 5,
-                "maturity_level": 5
+                "maturity_level": 5,
+                "implementation_phase": 4
             },
             "FortiDLP": {
                 "description": "Data Loss Prevention para endpoints",
                 "nist_function": "Protect",
                 "impact": 4,
-                "maturity_level": 3
+                "maturity_level": 3,
+                "implementation_phase": 3
             }
         }
     },
@@ -213,25 +215,29 @@ FORTINET_COMPLETE_PORTFOLIO = {
                 "description": "Secure Email Gateway con anti-phishing avanzado",
                 "nist_function": "Protect",
                 "impact": 4,
-                "maturity_level": 2
+                "maturity_level": 2,
+                "implementation_phase": 2
             },
             "FortiWeb": {
                 "description": "Web Application Firewall (WAF) con ML",
                 "nist_function": "Protect",
                 "impact": 4,
-                "maturity_level": 3
+                "maturity_level": 3,
+                "implementation_phase": 2
             },
             "FortiSandbox": {
                 "description": "Advanced Threat Protection con sandbox",
                 "nist_function": "Detect",
                 "impact": 4,
-                "maturity_level": 3
+                "maturity_level": 3,
+                "implementation_phase": 3
             },
             "FortiPhish": {
                 "description": "Phishing Simulation & Security Training",
                 "nist_function": "Protect",
                 "impact": 3,
-                "maturity_level": 2
+                "maturity_level": 2,
+                "implementation_phase": 2
             }
         }
     },
@@ -244,19 +250,22 @@ FORTINET_COMPLETE_PORTFOLIO = {
                 "description": "Multi-Factor Authentication centralizado",
                 "nist_function": "Protect",
                 "impact": 5,
-                "maturity_level": 3
+                "maturity_level": 3,
+                "implementation_phase": 2
             },
             "FortiToken": {
                 "description": "Tokens hardware y software para MFA",
                 "nist_function": "Protect",
                 "impact": 3,
-                "maturity_level": 3
+                "maturity_level": 3,
+                "implementation_phase": 2
             },
             "FortiPAM": {
                 "description": "Privileged Access Management",
                 "nist_function": "Protect",
                 "impact": 5,
-                "maturity_level": 4
+                "maturity_level": 4,
+                "implementation_phase": 4
             }
         }
     },
@@ -269,25 +278,29 @@ FORTINET_COMPLETE_PORTFOLIO = {
                 "description": "Security Information & Event Management",
                 "nist_function": "Detect",
                 "impact": 5,
-                "maturity_level": 4
+                "maturity_level": 4,
+                "implementation_phase": 3
             },
             "FortiSOAR": {
                 "description": "Security Orchestration & Automated Response",
                 "nist_function": "Respond",
                 "impact": 5,
-                "maturity_level": 4
+                "maturity_level": 4,
+                "implementation_phase": 4
             },
             "FortiAnalyzer": {
                 "description": "Centralized Logging & Reporting",
                 "nist_function": "Detect",
                 "impact": 4,
-                "maturity_level": 3
+                "maturity_level": 3,
+                "implementation_phase": 2
             },
             "FortiNDR": {
                 "description": "Network Detection & Response con IA",
                 "nist_function": "Detect",
                 "impact": 5,
-                "maturity_level": 4
+                "maturity_level": 4,
+                "implementation_phase": 4
             }
         }
     },
@@ -300,19 +313,22 @@ FORTINET_COMPLETE_PORTFOLIO = {
                 "description": "Centralized Security Management Platform",
                 "nist_function": "Identify",
                 "impact": 4,
-                "maturity_level": 3
+                "maturity_level": 3,
+                "implementation_phase": 2
             },
             "FortiCloud": {
                 "description": "Cloud-based Management Portal",
                 "nist_function": "Identify",
                 "impact": 3,
-                "maturity_level": 2
+                "maturity_level": 2,
+                "implementation_phase": 1
             },
             "FortiMonitor": {
                 "description": "Digital Experience Monitoring",
                 "nist_function": "Detect",
                 "impact": 3,
-                "maturity_level": 3
+                "maturity_level": 3,
+                "implementation_phase": 3
             }
         }
     },
@@ -325,21 +341,58 @@ FORTINET_COMPLETE_PORTFOLIO = {
                 "description": "Cloud Workload Protection Platform",
                 "nist_function": "Protect",
                 "impact": 5,
-                "maturity_level": 4
+                "maturity_level": 4,
+                "implementation_phase": 4
             },
             "FortiCASB": {
                 "description": "Cloud Access Security Broker",
                 "nist_function": "Protect",
                 "impact": 4,
-                "maturity_level": 4
+                "maturity_level": 4,
+                "implementation_phase": 4
             },
             "FortiDevSec": {
                 "description": "Application Security Testing",
                 "nist_function": "Identify",
                 "impact": 4,
-                "maturity_level": 4
+                "maturity_level": 4,
+                "implementation_phase": 5
             }
         }
+    }
+}
+
+# Fases de implementación temporal
+IMPLEMENTATION_PHASES = {
+    1: {
+        "name": "Fundamentos (0-3 meses)",
+        "description": "Establecer protecciones básicas y fundamentales",
+        "color": "#f44336",
+        "focus": "Protect & Identify"
+    },
+    2: {
+        "name": "Consolidación (3-6 meses)", 
+        "description": "Fortalecer capacidades centrales y gestión",
+        "color": "#ff9800",
+        "focus": "Protect & Detect"
+    },
+    3: {
+        "name": "Detección Avanzada (6-12 meses)",
+        "description": "Implementar capacidades de detección y respuesta",
+        "color": "#2196f3",
+        "focus": "Detect & Respond"
+    },
+    4: {
+        "name": "Optimización (12-18 meses)",
+        "description": "Automatización y orquestación avanzada",
+        "color": "#4caf50",
+        "focus": "Respond & Recover"
+    },
+    5: {
+        "name": "Excelencia (18-24 meses)",
+        "description": "Zero Trust y capacidades de vanguardia",
+        "color": "#9c27b0",
+        "focus": "All Functions"
     }
 }
 
@@ -362,20 +415,20 @@ COMPANY_SIZES = {
     "Empresa (5000+ empleados)": {"icon": "🌆", "priority": "Optimización"}
 }
 
-class MultipleSelectionAssessment:
+class EnhancedMultipleSelectionAssessment:
     def __init__(self):
-        if 'multi_assessment' not in st.session_state:
-            st.session_state.multi_assessment = {
+        if 'enhanced_multi_assessment' not in st.session_state:
+            st.session_state.enhanced_multi_assessment = {
                 'step': 1,
                 'industry': None,
                 'company_size': None,
-                'fortinet_products': {},
-                'non_fortinet_categories': {},
+                'fortinet_products': {},  # category_product -> True/False
+                'non_fortinet_categories': {},  # category -> True/False
                 'assessment_complete': False
             }
     
-    def calculate_nist_maturity(self) -> Dict:
-        """Calcula madurez NIST con selección múltiple"""
+    def calculate_enhanced_maturity(self) -> Dict:
+        """Cálculo mejorado con selección múltiple Fortinet + No Fortinet"""
         nist_functions = {
             "Identify": {"total_impact": 0, "selected_impact": 0, "weight": 0.15},
             "Protect": {"total_impact": 0, "selected_impact": 0, "weight": 0.35},
@@ -397,20 +450,23 @@ class MultipleSelectionAssessment:
                 weighted_impact = impact * maturity_factor
                 nist_functions[nist_function]["total_impact"] += weighted_impact
                 
-                # Si tiene el producto Fortinet
-                if st.session_state.multi_assessment["fortinet_products"].get(f"{category_name}_{product_name}", False):
+                # Si tiene el producto Fortinet específico
+                product_key = f"{category_name}_{product_name}"
+                if st.session_state.enhanced_multi_assessment["fortinet_products"].get(product_key, False):
                     nist_functions[nist_function]["selected_impact"] += weighted_impact
                     category_fortinet_count += 1
             
-            # Bonus por "No es Fortinet" solo si no tiene ningún producto Fortinet en la categoría
-            if category_fortinet_count == 0 and st.session_state.multi_assessment["non_fortinet_categories"].get(category_name, False):
-                # Dar 50% del crédito total de la categoría
+            # Si marcó "No es Fortinet" y NO tiene productos Fortinet en la categoría
+            has_non_fortinet = st.session_state.enhanced_multi_assessment["non_fortinet_categories"].get(category_name, False)
+            
+            if has_non_fortinet and category_fortinet_count == 0:
+                # Dar 60% del crédito total de la categoría por tener alternativas
                 for product_name, product_info in category_data["products"].items():
                     nist_function = product_info["nist_function"]
                     impact = product_info["impact"]
                     maturity_factor = product_info["maturity_level"] / 5.0
                     weighted_impact = impact * maturity_factor
-                    nist_functions[nist_function]["selected_impact"] += weighted_impact * 0.5
+                    nist_functions[nist_function]["selected_impact"] += weighted_impact * 0.6
         
         # Calcular porcentajes con pesos
         results = {}
@@ -441,36 +497,36 @@ class MultipleSelectionAssessment:
         else: return 1
 
 def main():
-    assessment = MultipleSelectionAssessment()
+    assessment = EnhancedMultipleSelectionAssessment()
     
     # Header principal
     st.markdown("""
     <div class="main-header">
         <div class="fortinet-logo">🛡️ FORTINET SECURITY FABRIC</div>
-        <h2>ROADMAP DE MADUREZ VISUAL</h2>
-        <p>Evalúa tu madurez actual en ciberseguridad y visualiza tu camino hacia la excelencia<br>
-        con el portafolio completo de Fortinet Security Fabric</p>
+        <h2>ROADMAP TEMPORAL DE MADUREZ</h2>
+        <p>Evalúa tu infraestructura actual y planifica tu evolución hacia una estrategia de seguridad madura<br>
+        <strong>Con timeline de implementación por fases (Nivel 1 al 5)</strong></p>
     </div>
     """, unsafe_allow_html=True)
     
     # Mostrar paso actual
-    current_step = st.session_state.multi_assessment['step']
+    current_step = st.session_state.enhanced_multi_assessment['step']
     
     if current_step == 1:
-        show_industry_selection()
+        show_enhanced_industry_selection()
     elif current_step == 2:
-        show_company_size_selection()
+        show_enhanced_company_size_selection()
     elif current_step == 3:
-        show_multiple_selection_assessment()
+        show_enhanced_multiple_selection_assessment()
     elif current_step == 4:
-        show_results_with_multiple_selection(assessment)
+        show_enhanced_results_with_timeline(assessment)
 
-def show_industry_selection():
+def show_enhanced_industry_selection():
     """Paso 1: Selección de industria"""
     st.markdown("""
     <div class="section-header">
         <h3>🏭 Selecciona tu Industria</h3>
-        <p>Esta información nos ayuda a personalizar el análisis de madurez y las recomendaciones según el contexto de tu empresa</p>
+        <p>Esta información nos ayuda a personalizar el roadmap temporal y las recomendaciones según las mejores prácticas de tu sector</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -481,105 +537,78 @@ def show_industry_selection():
         with cols[i % 4]:
             if st.button(
                 f"{industry_data['icon']}\n\n**{industry_name}**\n\nBenchmark: {industry_data['benchmark']}%",
-                key=f"industry_{industry_name}",
+                key=f"enhanced_industry_{industry_name}",
                 use_container_width=True
             ):
-                st.session_state.multi_assessment['industry'] = industry_name
+                st.session_state.enhanced_multi_assessment['industry'] = industry_name
                 st.rerun()
     
     # Botón continuar
-    if st.session_state.multi_assessment['industry']:
+    if st.session_state.enhanced_multi_assessment['industry']:
         st.markdown("---")
-        if st.button("📍 Continuar al Assessment →", type="primary", use_container_width=True):
-            st.session_state.multi_assessment['step'] = 2
+        st.success(f"✅ Industria seleccionada: **{st.session_state.enhanced_multi_assessment['industry']}**")
+        if st.button("📍 Continuar al Análisis de Tamaño →", type="primary", use_container_width=True):
+            st.session_state.enhanced_multi_assessment['step'] = 2
             st.rerun()
 
-def show_company_size_selection():
+def show_enhanced_company_size_selection():
     """Paso 2: Selección de tamaño de empresa"""
     st.markdown(f"""
     <div class="section-header">
         <h3>🏢 Tamaño de tu Organización</h3>
-        <p>Industria seleccionada: <strong>{st.session_state.multi_assessment['industry']}</strong></p>
+        <p>Industria seleccionada: <strong>{st.session_state.enhanced_multi_assessment['industry']}</strong></p>
+        <p>Esto determina la complejidad y timeline del roadmap recomendado</p>
     </div>
     """, unsafe_allow_html=True)
     
-    # Grid de tamaños
-    cols = st.columns(2)
-    
-    for i, (size_name, size_data) in enumerate(COMPANY_SIZES.items()):
-        with cols[i % 2]:
-            if st.button(
-                f"{size_data['icon']}\n\n**{size_name}**\n\nPrioridad: {size_data['priority']}",
-                key=f"size_{size_name}",
-                use_container_width=True
-            ):
-                st.session_state.multi_assessment['company_size'] = size_name
-                st.rerun()
+    # Grid de tamaños con información adicional
+    for size_name, size_data in COMPANY_SIZES.items():
+        if st.button(
+            f"{size_data['icon']} **{size_name}**\n\nPrioridad: {size_data['priority']}\nTimeline típico: {get_typical_timeline(size_name)}",
+            key=f"enhanced_size_{size_name}",
+            use_container_width=True
+        ):
+            st.session_state.enhanced_multi_assessment['company_size'] = size_name
+            st.rerun()
     
     # Navegación
     col1, col2 = st.columns(2)
     with col1:
         if st.button("← Anterior", use_container_width=True):
-            st.session_state.multi_assessment['step'] = 1
+            st.session_state.enhanced_multi_assessment['step'] = 1
             st.rerun()
     
     with col2:
-        if st.session_state.multi_assessment['company_size']:
-            if st.button("🔧 Assessment de Tecnologías Fortinet →", type="primary", use_container_width=True):
-                st.session_state.multi_assessment['step'] = 3
+        if st.session_state.enhanced_multi_assessment['company_size']:
+            st.success(f"✅ Tamaño seleccionado: **{st.session_state.enhanced_multi_assessment['company_size']}**")
+            if st.button("🔧 Assessment de Tecnologías →", type="primary", use_container_width=True):
+                st.session_state.enhanced_multi_assessment['step'] = 3
                 st.rerun()
 
-def show_multiple_selection_assessment():
-    """Paso 3: Assessment con selección múltiple por checkboxes"""
+def get_typical_timeline(company_size):
+    """Retorna timeline típico por tamaño de empresa"""
+    timelines = {
+        "Pequeña (1-50 empleados)": "6-12 meses",
+        "Mediana (51-500 empleados)": "12-18 meses", 
+        "Grande (501-5000 empleados)": "18-24 meses",
+        "Empresa (5000+ empleados)": "24-36 meses"
+    }
+    return timelines.get(company_size, "12-18 meses")
+
+def show_enhanced_multiple_selection_assessment():
+    """Paso 3: Assessment mejorado con selección múltiple Fortinet + No Fortinet"""
     st.markdown("""
     <div class="section-header">
-        <h3>🔧 Assessment de Tecnologías Fortinet</h3>
-        <p><strong>Selecciona TODAS las tecnologías de Fortinet que tienes implementadas</strong><br>
-        Puedes seleccionar múltiples productos por categoría (ej: FortiGate + FortiSwitch + FortiAP)</p>
+        <h3>🔧 Assessment de Tecnologías</h3>
+        <p><strong>Selecciona TODAS las tecnologías Fortinet que tienes implementadas</strong><br>
+        También puedes marcar "No es Fortinet" en categorías donde tengas otras soluciones</p>
     </div>
     """, unsafe_allow_html=True)
     
-    # Mostrar progreso
-    total_products = sum(len(cat["products"]) for cat in FORTINET_COMPLETE_PORTFOLIO.values())
-    selected_fortinet = sum(1 for v in st.session_state.multi_assessment["fortinet_products"].values() if v)
-    selected_non_fortinet = sum(1 for v in st.session_state.multi_assessment["non_fortinet_categories"].values() if v)
+    # Progreso general
+    show_enhanced_progress()
     
-    # Calcular cobertura por categorías
-    categories_with_fortinet = 0
-    total_categories = len(FORTINET_COMPLETE_PORTFOLIO)
-    
-    for category_name, category_data in FORTINET_COMPLETE_PORTFOLIO.items():
-        has_fortinet_in_category = any(
-            st.session_state.multi_assessment["fortinet_products"].get(f"{category_name}_{prod}", False)
-            for prod in category_data["products"].keys()
-        )
-        if has_fortinet_in_category:
-            categories_with_fortinet += 1
-    
-    st.markdown(f"""
-    <div class="progress-container">
-        <h4>📈 Progreso del Assessment</h4>
-        <div style="display: flex; justify-content: space-between;">
-            <div><strong>Productos Fortinet:</strong> {selected_fortinet}/{total_products}</div>
-            <div><strong>Categorías con Fortinet:</strong> {categories_with_fortinet}/{total_categories}</div>
-            <div><strong>Otras categorías:</strong> {selected_non_fortinet}</div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Cálculo temporal de madurez
-    temp_assessment = MultipleSelectionAssessment()
-    temp_results = temp_assessment.calculate_nist_maturity()
-    
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.metric("Productos Seleccionados", selected_fortinet)
-    with col2:
-        st.metric("Cobertura de Categorías", f"{(categories_with_fortinet/total_categories)*100:.0f}%")
-    with col3:
-        st.metric("Madurez Estimada", f"{temp_results['overall_score']:.1f}%")
-    
-    # Assessment por categorías con checkboxes múltiples
+    # Assessment por categorías
     for category_name, category_data in FORTINET_COMPLETE_PORTFOLIO.items():
         st.markdown(f"""
         <div class="category-header">
@@ -587,55 +616,68 @@ def show_multiple_selection_assessment():
         </div>
         """, unsafe_allow_html=True)
         
-        # Contenedor para productos Fortinet
-        with st.container():
-            st.markdown("**🛡️ Productos Fortinet en esta categoría:**")
+        col1, col2 = st.columns([2, 1])
+        
+        with col1:
+            # Sección productos Fortinet con multiselección
+            st.markdown("""
+            <div class="fortinet-section">
+                <h4>🛡️ Productos Fortinet</h4>
+                <p>Selecciona todos los productos que tienes implementados:</p>
+            </div>
+            """, unsafe_allow_html=True)
             
-            # Checkboxes para productos Fortinet (selección múltiple)
-            cols = st.columns(3)
-            for i, (product_name, product_info) in enumerate(category_data["products"].items()):
-                with cols[i % 3]:
-                    key = f"{category_name}_{product_name}"
-                    
-                    selected = st.checkbox(
-                        f"**{product_name}**",
-                        value=st.session_state.multi_assessment["fortinet_products"].get(key, False),
-                        key=f"checkbox_{key}",
-                        help=f"{product_info['description']} | NIST: {product_info['nist_function']} | Nivel: {product_info['maturity_level']}"
-                    )
-                    
-                    st.session_state.multi_assessment["fortinet_products"][key] = selected
-                    
-                    if selected:
-                        st.success(f"✅ Implementado")
-                        st.caption(f"🎯 NIST: {product_info['nist_function']} | 📊 Nivel {product_info['maturity_level']}")
-                    else:
-                        st.caption(f"📝 {product_info['description'][:50]}...")
+            # Checkboxes para cada producto Fortinet
+            for product_name, product_info in category_data["products"].items():
+                product_key = f"{category_name}_{product_name}"
+                
+                selected = st.checkbox(
+                    f"**{product_name}**",
+                    value=st.session_state.enhanced_multi_assessment["fortinet_products"].get(product_key, False),
+                    key=f"fortinet_checkbox_{product_key}",
+                    help=f"{product_info['description']} | NIST: {product_info['nist_function']} | Nivel: {product_info['maturity_level']} | Fase: {product_info['implementation_phase']}"
+                )
+                
+                st.session_state.enhanced_multi_assessment["fortinet_products"][product_key] = selected
+                
+                if selected:
+                    st.success(f"✅ {product_name} implementado")
+                    st.caption(f"🎯 NIST: {product_info['nist_function']} | 📊 Nivel {product_info['maturity_level']} | ⏱️ Fase {product_info['implementation_phase']}")
+                else:
+                    st.caption(f"📝 {product_info['description'][:60]}...")
         
-        # Opción "No es Fortinet" para la categoría
-        st.markdown("---")
-        
-        # Verificar si tiene algún producto Fortinet en esta categoría
-        has_fortinet_in_category = any(
-            st.session_state.multi_assessment["fortinet_products"].get(f"{category_name}_{prod}", False)
-            for prod in category_data["products"].keys()
-        )
-        
-        if not has_fortinet_in_category:
-            non_fortinet_selected = st.checkbox(
-                f"❌ **No tenemos Fortinet en {category_name}** - Pero tenemos otras soluciones de otros vendors",
-                value=st.session_state.multi_assessment["non_fortinet_categories"].get(category_name, False),
-                key=f"non_fortinet_checkbox_{category_name}",
-                help=f"Marca esta opción si tienes soluciones de otros vendors en {category_name}"
+        with col2:
+            # Sección "No es Fortinet"
+            st.markdown("""
+            <div class="non-fortinet-section">
+                <h4>🔧 Otras Soluciones</h4>
+                <p>Si tienes otras tecnologías (no Fortinet) en esta categoría:</p>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Verificar si tiene algún producto Fortinet en esta categoría
+            has_fortinet_in_category = any(
+                st.session_state.enhanced_multi_assessment["fortinet_products"].get(f"{category_name}_{prod}", False)
+                for prod in category_data["products"].keys()
             )
-            st.session_state.multi_assessment["non_fortinet_categories"][category_name] = non_fortinet_selected
+            
+            non_fortinet_selected = st.checkbox(
+                f"**No es Fortinet**\n\nTengo otras soluciones de terceros en {category_name}",
+                value=st.session_state.enhanced_multi_assessment["non_fortinet_categories"].get(category_name, False),
+                key=f"non_fortinet_checkbox_{category_name}",
+                help=f"Marca esta opción si tienes soluciones de otros vendors en {category_name} (agnóstico de marca)"
+            )
+            st.session_state.enhanced_multi_assessment["non_fortinet_categories"][category_name] = non_fortinet_selected
             
             if non_fortinet_selected:
-                st.info(f"🔧 Reconocido: Tienes otras soluciones en {category_name}")
-        else:
-            st.success(f"🛡️ ¡Excelente! Tienes productos Fortinet en {category_name}")
-            # Si tiene Fortinet, asegurar que "No es Fortinet" esté en False
-            st.session_state.multi_assessment["non_fortinet_categories"][category_name] = False
+                if has_fortinet_in_category:
+                    st.info(f"🔧 Ambiente híbrido: Fortinet + otras soluciones")
+                else:
+                    st.info(f"🔧 Soluciones de terceros en {category_name}")
+            elif has_fortinet_in_category:
+                st.success(f"🛡️ Solo Fortinet en {category_name}")
+            else:
+                st.warning(f"⚠️ Sin protección en {category_name}")
         
         st.markdown("---")
     
@@ -643,69 +685,96 @@ def show_multiple_selection_assessment():
     col1, col2 = st.columns(2)
     with col1:
         if st.button("← Anterior", use_container_width=True):
-            st.session_state.multi_assessment['step'] = 2
+            st.session_state.enhanced_multi_assessment['step'] = 2
             st.rerun()
     
     with col2:
-        total_selections = selected_fortinet + selected_non_fortinet
+        total_selections = get_total_technology_count()
         if total_selections > 0:
-            if st.button("📊 Generar Roadmap de Madurez →", type="primary", use_container_width=True):
-                st.session_state.multi_assessment['step'] = 4
-                st.session_state.multi_assessment['assessment_complete'] = True
+            if st.button("📊 Generar Roadmap Temporal →", type="primary", use_container_width=True):
+                st.session_state.enhanced_multi_assessment['step'] = 4
+                st.session_state.enhanced_multi_assessment['assessment_complete'] = True
                 st.rerun()
 
-def show_results_with_multiple_selection(assessment):
-    """Paso 4: Resultados con selección múltiple"""
-    results = assessment.calculate_nist_maturity()
+def show_enhanced_progress():
+    """Muestra progreso mejorado del assessment"""
+    total_fortinet = get_fortinet_technology_count()
+    total_non_fortinet = get_non_fortinet_category_count()
+    categories_covered = get_categories_covered()
+    
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.metric("Productos Fortinet", total_fortinet)
+    with col2:
+        st.metric("Categorías con Alternativas", total_non_fortinet)
+    with col3:
+        coverage_pct = (categories_covered / len(FORTINET_COMPLETE_PORTFOLIO)) * 100
+        st.metric("Cobertura Total", f"{coverage_pct:.0f}%")
+    with col4:
+        temp_assessment = EnhancedMultipleSelectionAssessment()
+        temp_results = temp_assessment.calculate_enhanced_maturity()
+        st.metric("Madurez Estimada", f"{temp_results['overall_score']:.1f}%")
+
+def get_total_technology_count():
+    """Cuenta total de tecnologías seleccionadas"""
+    fortinet_count = get_fortinet_technology_count()
+    non_fortinet_count = get_non_fortinet_category_count()
+    return fortinet_count + non_fortinet_count
+
+def get_fortinet_technology_count():
+    """Cuenta productos Fortinet seleccionados"""
+    return sum(1 for selected in st.session_state.enhanced_multi_assessment["fortinet_products"].values() if selected)
+
+def get_non_fortinet_category_count():
+    """Cuenta categorías marcadas como 'No es Fortinet'"""
+    return sum(1 for selected in st.session_state.enhanced_multi_assessment["non_fortinet_categories"].values() if selected)
+
+def get_categories_covered():
+    """Cuenta categorías con al menos una tecnología"""
+    covered = 0
+    for category_name in FORTINET_COMPLETE_PORTFOLIO.keys():
+        has_fortinet = any(
+            st.session_state.enhanced_multi_assessment["fortinet_products"].get(f"{category_name}_{prod}", False)
+            for prod in FORTINET_COMPLETE_PORTFOLIO[category_name]["products"].keys()
+        )
+        has_alternative = st.session_state.enhanced_multi_assessment["non_fortinet_categories"].get(category_name, False)
+        
+        if has_fortinet or has_alternative:
+            covered += 1
+    
+    return covered
+
+def show_enhanced_results_with_timeline(assessment):
+    """Resultados mejorados con timeline temporal"""
+    results = assessment.calculate_enhanced_maturity()
     
     # Header de resultados
     st.markdown(f"""
     <div class="section-header">
-        <h2>🎯 FORTINET SECURITY FABRIC - ROADMAP DE MADUREZ</h2>
+        <h2>🎯 ROADMAP TEMPORAL - FORTINET SECURITY FABRIC</h2>
         <h3>Nivel Actual: {results['maturity_level']}/5 ({results['overall_score']:.1f}%)</h3>
-        <p><strong>Industria:</strong> {st.session_state.multi_assessment['industry']} | 
-           <strong>Tamaño:</strong> {st.session_state.multi_assessment['company_size']}</p>
+        <p><strong>Industria:</strong> {st.session_state.enhanced_multi_assessment['industry']} | 
+           <strong>Tamaño:</strong> {st.session_state.enhanced_multi_assessment['company_size']}</p>
     </div>
     """, unsafe_allow_html=True)
     
-    # Análisis de cobertura
-    show_coverage_analysis()
-    
-    # Métricas principales
-    col1, col2, col3, col4 = st.columns(4)
-    
-    with col1:
-        st.metric("Madurez General", f"Nivel {results['maturity_level']}", f"{results['overall_score']:.1f}%")
-    
-    with col2:
-        best_function = max(results['function_scores'].items(), key=lambda x: x[1])
-        st.metric("Función Más Fuerte", best_function[0], f"{best_function[1]:.1f}%")
-    
-    with col3:
-        weakest_function = min(results['function_scores'].items(), key=lambda x: x[1])
-        st.metric("Mayor Oportunidad", weakest_function[0], f"{weakest_function[1]:.1f}%")
-    
-    with col4:
-        industry = st.session_state.multi_assessment['industry']
-        if industry in INDUSTRIES:
-            benchmark = INDUSTRIES[industry]["benchmark"]
-            delta = results['overall_score'] - benchmark
-            st.metric("vs. Industria", f"{delta:+.1f}%", f"Promedio: {benchmark:.1f}%")
-    
-    # Roadmap visual (corregido sin errores de Plotly)
-    show_corrected_roadmap(assessment, results)
+    # Timeline de implementación
+    show_implementation_timeline(assessment, results)
     
     # Pestañas de análisis
-    tab1, tab2, tab3 = st.tabs(["📊 Análisis NIST", "🗺️ Recomendaciones", "📋 Resumen Ejecutivo"])
+    tab1, tab2, tab3, tab4 = st.tabs(["📊 Estado Actual", "🗺️ Roadmap por Fases", "📈 Análisis NIST", "📋 Plan de Acción"])
     
     with tab1:
-        show_nist_analysis_corrected(results)
+        show_current_state_analysis(assessment, results)
     
     with tab2:
-        show_multiple_selection_recommendations(assessment, results)
+        show_phased_roadmap(assessment, results)
     
     with tab3:
-        show_executive_summary(assessment, results)
+        show_enhanced_nist_analysis(results)
+    
+    with tab4:
+        show_action_plan(assessment, results)
     
     # Botón para reiniciar
     st.markdown("---")
@@ -714,169 +783,339 @@ def show_results_with_multiple_selection(assessment):
             del st.session_state[key]
         st.rerun()
 
-def show_coverage_analysis():
-    """Muestra análisis de cobertura por categorías"""
-    st.subheader("📊 Análisis de Cobertura por Categoría")
+def show_implementation_timeline(assessment, results):
+    """Muestra timeline de implementación como en la imagen"""
+    st.markdown("""
+    <div class="timeline-container">
+        <h3>🗺️ TIMELINE DE EVOLUCIÓN - ESTRATEGIA DE SEGURIDAD MADURA</h3>
+        <p>Roadmap temporal desde Nivel 1 (Inicial) hasta Nivel 5 (Excelencia)</p>
+    </div>
+    """, unsafe_allow_html=True)
     
-    coverage_data = []
+    # Crear visualización de timeline similar a la imagen
+    fig = create_timeline_visualization(assessment, results)
+    st.plotly_chart(fig, use_container_width=True)
+
+def create_timeline_visualization(assessment, results):
+    """Crea visualización de timeline como en la imagen"""
+    fig = go.Figure()
+    
+    # Línea base del timeline con gradiente
+    phases = list(IMPLEMENTATION_PHASES.keys())
+    colors = ['#f44336', '#ff9800', '#2196f3', '#4caf50', '#9c27b0']
+    
+    # Línea principal del roadmap
+    fig.add_trace(go.Scatter(
+        x=[0.5, 5.5],
+        y=[3, 3],
+        mode='lines',
+        line=dict(color='lightgray', width=10),
+        showlegend=False,
+        name='Timeline Base'
+    ))
+    
+    # Agregar fases con colores del IMPLEMENTATION_PHASES
+    for phase_num, phase_data in IMPLEMENTATION_PHASES.items():
+        # Marcador de fase principal
+        fig.add_trace(go.Scatter(
+            x=[phase_num],
+            y=[3],
+            mode='markers+text',
+            marker=dict(
+                size=80,
+                color=phase_data['color'],
+                line=dict(color='white', width=4),
+                opacity=0.9
+            ),
+            text=[f"Nivel {phase_num}"],
+            textposition="middle center",
+            textfont=dict(color='white', size=14, family="Arial Black"),
+            showlegend=False,
+            name=phase_data['name']
+        ))
+        
+        # Título de fase arriba
+        fig.add_annotation(
+            x=phase_num,
+            y=4.2,
+            text=f"<b>{phase_data['name']}</b>",
+            showarrow=False,
+            font=dict(size=11, color=phase_data['color'], family="Arial Black"),
+            align="center"
+        )
+        
+        # Descripción de fase abajo
+        fig.add_annotation(
+            x=phase_num,
+            y=1.8,
+            text=phase_data['description'],
+            showarrow=False,
+            font=dict(size=9, color='#666666'),
+            align="center",
+            width=120
+        )
+    
+    # Marcar posición actual con estrella prominente
+    current_level = results['maturity_level']
+    fig.add_trace(go.Scatter(
+        x=[current_level],
+        y=[4.8],
+        mode='markers+text',
+        marker=dict(
+            size=30,
+            color='red',
+            symbol='star',
+            line=dict(color='darkred', width=3)
+        ),
+        text=['USTED ESTÁ AQUÍ'],
+        textposition="top center",
+        textfont=dict(size=12, color='red', family="Arial Black"),
+        showlegend=False,
+        name="Posición Actual"
+    ))
+    
+    # Agregar productos Fortinet por fase (distribuidos verticalmente)
+    y_positions = np.linspace(0.8, 2.2, 8)  # 8 posiciones verticales
+    product_index = 0
     
     for category_name, category_data in FORTINET_COMPLETE_PORTFOLIO.items():
-        total_products = len(category_data["products"])
-        fortinet_products = sum(
-            1 for prod in category_data["products"].keys()
-            if st.session_state.multi_assessment["fortinet_products"].get(f"{category_name}_{prod}", False)
-        )
-        has_alternative = st.session_state.multi_assessment["non_fortinet_categories"].get(category_name, False)
+        for product_name, product_info in category_data["products"].items():
+            phase = product_info['implementation_phase']
+            
+            # Verificar si está implementado
+            product_key = f"{category_name}_{product_name}"
+            is_implemented = st.session_state.enhanced_multi_assessment["fortinet_products"].get(product_key, False)
+            
+            # Color y símbolo según implementación
+            if is_implemented:
+                color = '#4caf50'  # Verde para implementado
+                symbol = 'circle'
+                size = 15
+            else:
+                color = '#e0e0e0'  # Gris para no implementado
+                symbol = 'circle-open'
+                size = 12
+            
+            # Posición con algo de randomización horizontal
+            x_pos = phase + np.random.uniform(-0.25, 0.25)
+            y_pos = y_positions[product_index % len(y_positions)]
+            
+            fig.add_trace(go.Scatter(
+                x=[x_pos],
+                y=[y_pos],
+                mode='markers+text',
+                marker=dict(
+                    size=size,
+                    color=color,
+                    symbol=symbol,
+                    line=dict(color='white', width=1)
+                ),
+                text=[product_name.replace('Forti', '')],
+                textposition="top center",
+                textfont=dict(size=8, color='#333333'),
+                showlegend=False,
+                name=product_name,
+                hovertemplate=f"<b>{product_name}</b><br>{product_info['description']}<br>Fase: {phase}<br>NIST: {product_info['nist_function']}<extra></extra>"
+            ))
+            
+            product_index += 1
+    
+    # Configuración del gráfico
+    fig.update_layout(
+        title={
+            'text': "🗺️ ROADMAP COMPLETO - TODAS LAS TECNOLOGÍAS FORTINET SECURITY FABRIC",
+            'x': 0.5,
+            'xanchor': 'center',
+            'font': {'size': 16, 'family': 'Arial Black', 'color': '#d32f2f'}
+        },
+        xaxis=dict(
+            range=[0.3, 5.7],
+            title="← Fases de Implementación Temporal →",
+            titlefont=dict(size=14, color='#333333'),
+            tickvals=phases,
+            ticktext=[f"Nivel {p}" for p in phases],
+            showgrid=False,
+            zeroline=False
+        ),
+        yaxis=dict(
+            range=[0.5, 5.2],
+            showticklabels=False,
+            showgrid=False,
+            zeroline=False
+        ),
+        height=700,
+        showlegend=False,
+        plot_bgcolor='rgba(248,249,250,0.8)',
+        paper_bgcolor='white',
+        hovermode='closest'
+    )
+    
+    return fig
+
+def show_current_state_analysis(assessment, results):
+    """Análisis del estado actual"""
+    st.subheader("📊 Análisis del Estado Actual")
+    
+    # Métricas principales
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        st.metric("Madurez General", f"Nivel {results['maturity_level']}", f"{results['overall_score']:.1f}%")
+    
+    with col2:
+        fortinet_count = get_fortinet_technology_count()
+        total_fortinet = sum(len(cat["products"]) for cat in FORTINET_COMPLETE_PORTFOLIO.values())
+        st.metric("Productos Fortinet", f"{fortinet_count}/{total_fortinet}")
+    
+    with col3:
+        non_fortinet_count = get_non_fortinet_category_count()
+        total_categories = len(FORTINET_COMPLETE_PORTFOLIO)
+        st.metric("Categorías con Alternativas", f"{non_fortinet_count}/{total_categories}")
+    
+    with col4:
+        industry = st.session_state.enhanced_multi_assessment['industry']
+        if industry in INDUSTRIES:
+            benchmark = INDUSTRIES[industry]["benchmark"]
+            delta = results['overall_score'] - benchmark
+            st.metric("vs. Industria", f"{delta:+.1f}%", f"Promedio: {benchmark:.1f}%")
+    
+    # Desglose por categorías
+    st.subheader("🏗️ Cobertura por Categoría")
+    
+    coverage_data = []
+    for category_name, category_data in FORTINET_COMPLETE_PORTFOLIO.items():
+        fortinet_products = []
+        for product_name in category_data["products"].keys():
+            product_key = f"{category_name}_{product_name}"
+            if st.session_state.enhanced_multi_assessment["fortinet_products"].get(product_key, False):
+                fortinet_products.append(product_name)
         
-        if fortinet_products > 0:
-            status = f"🛡️ Fortinet ({fortinet_products}/{total_products})"
-            coverage = (fortinet_products / total_products) * 100
+        has_alternative = st.session_state.enhanced_multi_assessment["non_fortinet_categories"].get(category_name, False)
+        total_products = len(category_data["products"])
+        fortinet_count = len(fortinet_products)
+        
+        # Determinar estado
+        if fortinet_count > 0 and has_alternative:
+            status = f"🔄 Híbrido: {fortinet_count}/{total_products} Fortinet + Otras"
+        elif fortinet_count > 0:
+            status = f"🛡️ Fortinet: {fortinet_count}/{total_products} productos"
         elif has_alternative:
-            status = "🔧 Otras soluciones"
-            coverage = 50  # 50% por tener alternativas
+            status = "🔧 Solo otras soluciones (No Fortinet)"
         else:
             status = "❌ Sin cobertura"
-            coverage = 0
         
         coverage_data.append({
             "Categoría": category_name,
             "Estado": status,
-            "Cobertura": f"{coverage:.0f}%",
-            "Productos Fortinet": f"{fortinet_products}/{total_products}"
+            "Productos Fortinet": fortinet_count,
+            "Total Disponible": total_products,
+            "Otras Soluciones": "✅" if has_alternative else "❌"
         })
     
     coverage_df = pd.DataFrame(coverage_data)
     st.dataframe(coverage_df, use_container_width=True, hide_index=True)
 
-def show_corrected_roadmap(assessment, results):
-    """Roadmap visual corregido sin errores de Plotly"""
-    st.subheader("🗺️ Roadmap Visual del Security Fabric")
+def show_phased_roadmap(assessment, results):
+    """Muestra roadmap por fases"""
+    st.subheader("🗺️ Roadmap por Fases de Implementación")
     
-    # Obtener productos implementados
-    implemented_products = []
+    current_level = results['maturity_level']
     
-    for category_name, category_data in FORTINET_COMPLETE_PORTFOLIO.items():
-        for product_name, product_info in category_data["products"].items():
-            key = f"{category_name}_{product_name}"
-            if st.session_state.multi_assessment["fortinet_products"].get(key, False):
-                implemented_products.append({
-                    "name": product_name,
-                    "category": category_name,
-                    "maturity_level": product_info["maturity_level"],
-                    "impact": product_info["impact"],
-                    "nist_function": product_info["nist_function"]
-                })
-    
-    if implemented_products:
-        # Crear figura simple sin errores
-        fig = go.Figure()
+    for phase_num, phase_data in IMPLEMENTATION_PHASES.items():
+        # Determinar estado de la fase
+        if phase_num <= current_level:
+            phase_status = "✅ COMPLETADO"
+            status_color = "success"
+        elif phase_num == current_level + 1:
+            phase_status = "🎯 SIGUIENTE FASE"
+            status_color = "warning"
+        else:
+            phase_status = "📅 FUTURO"
+            status_color = "info"
         
-        # Colores por función NIST
-        nist_colors = {
-            'Identify': '#2196F3',
-            'Protect': '#4CAF50', 
-            'Detect': '#FF9800',
-            'Respond': '#F44336',
-            'Recover': '#9C27B0'
-        }
-        
-        # Línea de progreso principal
-        fig.add_trace(go.Scatter(
-            x=[0.5, 5.5], 
-            y=[0.5, 5.5],
-            mode='lines',
-            line=dict(color='lightgray', width=8),
-            showlegend=False,
-            name='Roadmap'
-        ))
-        
-        # Posicionar productos implementados
-        for product in implemented_products:
-            x_pos = product['maturity_level'] + np.random.uniform(-0.2, 0.2)
-            y_pos = product['maturity_level'] + np.random.uniform(-0.2, 0.2)
+        with st.expander(f"{phase_data['name']} - {phase_status}", expanded=(phase_num <= current_level + 1)):
             
-            color = nist_colors.get(product['nist_function'], '#666666')
-            marker_size = 12 + product['impact'] * 3
+            col1, col2 = st.columns([2, 1])
             
-            fig.add_trace(go.Scatter(
-                x=[x_pos], 
-                y=[y_pos],
-                mode='markers+text',
-                marker=dict(
-                    size=marker_size,
-                    color=color,
-                    line=dict(color='white', width=2)
-                ),
-                text=[product['name'].replace('Forti', '')],
-                textposition="top center",
-                textfont=dict(size=8),
-                showlegend=False,
-                name=product['name']
-            ))
-        
-        # Marcar nivel actual
-        current_level = results['maturity_level']
-        fig.add_trace(go.Scatter(
-            x=[current_level], 
-            y=[current_level],
-            mode='markers+text',
-            marker=dict(
-                size=40,
-                color='red',
-                symbol='star',
-                line=dict(color='darkred', width=3)
-            ),
-            text=['USTED ESTÁ AQUÍ'],
-            textposition="bottom center",
-            textfont=dict(size=10, color='red'),
-            showlegend=False,
-            name="Posición Actual"
-        ))
-        
-        # Configuración corregida
-        fig.update_layout(
-            title="🗺️ Roadmap de Productos Fortinet Implementados",
-            xaxis=dict(
-                range=[0, 6],
-                title="Nivel de Madurez NIST →",
-                tickvals=[1, 2, 3, 4, 5],
-                ticktext=['Nivel 1', 'Nivel 2', 'Nivel 3', 'Nivel 4', 'Nivel 5']
-            ),
-            yaxis=dict(
-                range=[0, 6],
-                title="↑ Cobertura Security Fabric",
-                tickvals=[1, 2, 3, 4, 5],
-                ticktext=['Básico', 'Estándar', 'Avanzado', 'Empresarial', 'Zero Trust']
-            ),
-            height=500,
-            showlegend=False
-        )
-        
-        st.plotly_chart(fig, use_container_width=True)
-    else:
-        st.info("Selecciona algunos productos Fortinet para ver el roadmap visual.")
+            with col1:
+                st.markdown(f"""
+                <div class="phase-card">
+                    <h4 style="color: {phase_data['color']};">{phase_data['name']}</h4>
+                    <p><strong>Descripción:</strong> {phase_data['description']}</p>
+                    <p><strong>Enfoque NIST:</strong> {phase_data['focus']}</p>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            with col2:
+                if phase_status == "✅ COMPLETADO":
+                    st.success("Fase completada")
+                elif phase_status == "🎯 SIGUIENTE FASE":
+                    st.warning("Próxima a implementar")
+                else:
+                    st.info("Planificación futura")
+            
+            # Productos recomendados para esta fase
+            st.markdown("**🛡️ Productos Fortinet recomendados:**")
+            
+            phase_products = []
+            for category_name, category_data in FORTINET_COMPLETE_PORTFOLIO.items():
+                for product_name, product_info in category_data["products"].items():
+                    if product_info['implementation_phase'] == phase_num:
+                        # Verificar si ya está implementado
+                        product_key = f"{category_name}_{product_name}"
+                        is_implemented = st.session_state.enhanced_multi_assessment["fortinet_products"].get(product_key, False)
+                        
+                        phase_products.append({
+                            "product": product_name,
+                            "category": category_name,
+                            "description": product_info['description'],
+                            "nist": product_info['nist_function'],
+                            "implemented": is_implemented,
+                            "impact": product_info['impact']
+                        })
+            
+            if phase_products:
+                # Ordenar por impacto
+                phase_products.sort(key=lambda x: x['impact'], reverse=True)
+                
+                for product in phase_products:
+                    status_icon = "✅" if product['implemented'] else "⭕"
+                    impact_stars = "⭐" * product['impact']
+                    st.markdown(f"{status_icon} **{product['product']}** ({product['category']}) {impact_stars}")
+                    st.caption(f"📝 {product['description']} | 🎯 NIST: {product['nist']}")
+            else:
+                st.info("No hay productos específicos para esta fase")
 
-def show_nist_analysis_corrected(results):
-    """Análisis NIST corregido"""
-    functions = list(results['function_scores'].keys())
-    scores = list(results['function_scores'].values())
+def show_enhanced_nist_analysis(results):
+    """Análisis NIST mejorado"""
+    st.subheader("📈 Análisis por Funciones NIST")
     
     col1, col2 = st.columns(2)
     
     with col1:
-        # Radar chart simplificado
+        # Radar chart
+        functions = list(results['function_scores'].keys())
+        scores = list(results['function_scores'].values())
+        
         fig_radar = go.Figure()
         
         fig_radar.add_trace(go.Scatterpolar(
-            r=scores,
-            theta=functions,
+            r=scores + [scores[0]],  # Cerrar el polígono
+            theta=functions + [functions[0]],
             fill='toself',
             name='Madurez Actual',
-            line_color='rgb(211, 47, 47)'
+            line_color='rgb(211, 47, 47)',
+            fillcolor='rgba(211, 47, 47, 0.3)'
         ))
         
         fig_radar.update_layout(
-            polar=dict(radialaxis=dict(visible=True, range=[0, 100])),
+            polar=dict(
+                radialaxis=dict(
+                    visible=True, 
+                    range=[0, 100],
+                    ticksuffix="%"
+                )
+            ),
             title="Radar de Madurez NIST",
             height=400
         )
@@ -884,93 +1123,85 @@ def show_nist_analysis_corrected(results):
         st.plotly_chart(fig_radar, use_container_width=True)
     
     with col2:
-        # Gráfico de barras simple
-        colors = ['#f44336' if score < 40 else '#ff9800' if score < 60 else '#4caf50' for score in scores]
+        # Análisis por función
+        st.markdown("**📊 Desglose por Función:**")
         
-        fig_bar = go.Figure(data=[
-            go.Bar(
-                x=functions,
-                y=scores,
-                marker_color=colors,
-                text=[f"{score:.1f}%" for score in scores],
-                textposition='auto'
-            )
-        ])
-        
-        fig_bar.update_layout(
-            title="Madurez por Función NIST",
-            yaxis=dict(range=[0, 100]),
-            height=400
-        )
-        
-        st.plotly_chart(fig_bar, use_container_width=True)
+        for function, score in results['function_scores'].items():
+            if score >= 70:
+                status = "🟢 Fuerte"
+                color = "success"
+            elif score >= 40:
+                status = "🟡 Moderado"
+                color = "warning"
+            else:
+                status = "🔴 Débil"
+                color = "error"
+            
+            st.metric(f"{function}", f"{score:.1f}%", f"{status}")
 
-def show_multiple_selection_recommendations(assessment, results):
-    """Recomendaciones basadas en selección múltiple"""
-    st.subheader("🎯 Recomendaciones Priorizadas")
+def show_action_plan(assessment, results):
+    """Plan de acción detallado"""
+    st.subheader("📋 Plan de Acción Recomendado")
     
-    # Identificar categorías sin cobertura
-    uncovered_categories = []
-    partial_coverage = []
-    
-    for category_name, category_data in FORTINET_COMPLETE_PORTFOLIO.items():
-        total_products = len(category_data["products"])
-        fortinet_products = sum(
-            1 for prod in category_data["products"].keys()
-            if st.session_state.multi_assessment["fortinet_products"].get(f"{category_name}_{prod}", False)
-        )
-        has_alternative = st.session_state.multi_assessment["non_fortinet_categories"].get(category_name, False)
-        
-        if fortinet_products == 0 and not has_alternative:
-            uncovered_categories.append(category_name)
-        elif fortinet_products > 0 and fortinet_products < total_products:
-            partial_coverage.append({
-                "category": category_name,
-                "coverage": f"{fortinet_products}/{total_products}"
-            })
-    
-    # Mostrar recomendaciones críticas
-    if uncovered_categories:
-        st.error("🚨 **Categorías sin cobertura (Crítico):**")
-        for category in uncovered_categories:
-            st.write(f"❌ **{category}** - Sin protección en esta área")
-    
-    # Mostrar oportunidades de expansión
-    if partial_coverage:
-        st.warning("📈 **Oportunidades de expansión:**")
-        for item in partial_coverage:
-            st.write(f"🔧 **{item['category']}** - Cobertura parcial ({item['coverage']})")
-    
-    if not uncovered_categories and not partial_coverage:
-        st.success("🎉 ¡Excelente cobertura del portfolio Fortinet!")
-
-def show_executive_summary(assessment, results):
-    """Resumen ejecutivo"""
-    st.subheader("📋 Resumen Ejecutivo")
-    
-    total_products = sum(len(cat["products"]) for cat in FORTINET_COMPLETE_PORTFOLIO.values())
-    selected_fortinet = sum(1 for v in st.session_state.multi_assessment["fortinet_products"].values() if v)
+    current_level = results['maturity_level']
+    next_phase = min(current_level + 1, 5)
     
     st.markdown(f"""
-    **🎯 Resultados del Assessment:**
-    
-    - **Nivel de Madurez:** {results['maturity_level']}/5 ({results['overall_score']:.1f}%)
-    - **Productos Fortinet:** {selected_fortinet}/{total_products} implementados
-    - **Industria:** {st.session_state.multi_assessment['industry']}
-    - **Tamaño:** {st.session_state.multi_assessment['company_size']}
-    
-    **📊 Análisis por Función NIST:**
+    **🎯 Situación Actual:**
+    - Nivel de madurez: **{current_level}/5**
+    - Puntaje general: **{results['overall_score']:.1f}%**
+    - Próxima fase recomendada: **{IMPLEMENTATION_PHASES[next_phase]['name']}**
     """)
     
-    for function, score in results['function_scores'].items():
-        if score >= 70:
-            status = "✅ Fuerte"
-        elif score >= 40:
-            status = "⚠️ Moderado"
-        else:
-            status = "❌ Débil"
+    # Identificar gaps críticos
+    st.markdown("**🚨 Gaps Críticos a Abordar:**")
+    
+    critical_gaps = []
+    for category_name, category_data in FORTINET_COMPLETE_PORTFOLIO.items():
+        # Verificar si tiene cobertura en la categoría
+        has_fortinet = any(
+            st.session_state.enhanced_multi_assessment["fortinet_products"].get(f"{category_name}_{prod}", False)
+            for prod in category_data["products"].keys()
+        )
+        has_alternative = st.session_state.enhanced_multi_assessment["non_fortinet_categories"].get(category_name, False)
         
-        st.write(f"- **{function}:** {score:.1f}% {status}")
+        if not has_fortinet and not has_alternative:
+            critical_gaps.append(category_name)
+    
+    if critical_gaps:
+        for gap in critical_gaps:
+            st.error(f"❌ **{gap}** - Sin protección en esta área crítica")
+    else:
+        st.success("✅ Todas las categorías tienen algún nivel de cobertura")
+    
+    # Recomendaciones inmediatas
+    st.markdown("**⚡ Acciones Inmediatas (Próximos 3 meses):**")
+    
+    immediate_actions = []
+    for category_name, category_data in FORTINET_COMPLETE_PORTFOLIO.items():
+        for product_name, product_info in category_data["products"].items():
+            if product_info['implementation_phase'] == next_phase:
+                product_key = f"{category_name}_{product_name}"
+                is_implemented = st.session_state.enhanced_multi_assessment["fortinet_products"].get(product_key, False)
+                
+                if not is_implemented:
+                    immediate_actions.append({
+                        "product": product_name,
+                        "category": category_name,
+                        "priority": "Alta" if product_info['impact'] >= 4 else "Media",
+                        "impact": product_info['impact']
+                    })
+    
+    if immediate_actions:
+        # Ordenar por impacto
+        immediate_actions.sort(key=lambda x: x['impact'], reverse=True)
+        
+        for action in immediate_actions[:5]:  # Top 5
+            priority_color = "🔴" if action['priority'] == "Alta" else "🟡"
+            impact_stars = "⭐" * action['impact']
+            st.markdown(f"{priority_color} Implementar **{action['product']}** en {action['category']} {impact_stars} (Prioridad: {action['priority']})")
+    else:
+        st.info("🎉 Estás al día con las recomendaciones para tu nivel actual")
 
 if __name__ == "__main__":
     main()
