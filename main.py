@@ -1352,32 +1352,8 @@ def show_visual_roadmap_chart(results):
     
     current_level = results['maturity_level']
     
-    # Crear figura con subplots
+    # Crear figura básica
     fig = go.Figure()
-    
-    # Configurar el fondo con zonas de color por nivel
-    level_colors = ['#fee2e2', '#fed7aa', '#dbeafe', '#dcfce7', '#f3e8ff']
-    level_names = ['Nivel 1\nInicial', 'Nivel 2\nBásico', 'Nivel 3\nIntermedio', 'Nivel 4\nAvanzado', 'Nivel 5\nExcelencia']
-    
-    # Agregar zonas de fondo por nivel
-    for i, (color, name) in enumerate(zip(level_colors, level_names)):
-        fig.add_shape(
-            type="rect",
-            x0=i+0.7, y0=0, x1=i+1.3, y1=6,
-            fillcolor=color,
-            opacity=0.3,
-            layer="below",
-            line_width=0,
-        )
-        
-        # Agregar etiquetas de nivel en la parte superior
-        fig.add_annotation(
-            x=i+1, y=5.8,
-            text=f"<b>{name}</b>",
-            showarrow=False,
-            font=dict(size=12, color='#1e293b'),
-            align="center"
-        )
     
     # Línea principal del roadmap
     fig.add_trace(go.Scatter(
@@ -1389,9 +1365,9 @@ def show_visual_roadmap_chart(results):
         name='Roadmap Path'
     ))
     
-    # Datos de posicionamiento para productos (simulando la imagen)
-    product_positions = {}
-    y_offset_base = [0.8, 1.2, 1.6, 2.0, 2.4, 2.8, 3.2, 3.6, 4.0, 4.4]
+    # Datos de posicionamiento para productos
+    y_positions = [0.8, 1.2, 1.6, 2.0, 2.4, 2.8, 3.2, 3.6, 4.0, 4.4]
+    product_count = 0
     
     # Posicionar productos por fase
     for category_name, category_data in FORTINET_COMPLETE_PORTFOLIO.items():
@@ -1402,22 +1378,19 @@ def show_visual_roadmap_chart(results):
             product_key = f"{category_name}_{product_name}"
             is_implemented = st.session_state.professional_assessment["fortinet_products"].get(product_key, False)
             
-            # Calcular posición con algo de variación
-            base_y = y_offset_base[hash(product_name) % len(y_offset_base)]
-            y_pos = base_y + np.random.uniform(-0.15, 0.15)
-            x_pos = phase + np.random.uniform(-0.25, 0.25)
+            # Calcular posición
+            y_pos = y_positions[product_count % len(y_positions)]
+            x_pos = phase + (product_count % 5 - 2) * 0.1  # Variación horizontal pequeña
             
             # Color y tamaño según implementación
             if is_implemented:
                 color = '#10b981'  # Verde para implementado
                 size = 16
                 symbol = 'circle'
-                opacity = 1.0
             else:
                 color = '#e5e7eb'  # Gris para no implementado
                 size = 12
                 symbol = 'circle-open'
-                opacity = 0.7
             
             # Agregar punto del producto
             fig.add_trace(go.Scatter(
@@ -1428,21 +1401,17 @@ def show_visual_roadmap_chart(results):
                     size=size,
                     color=color,
                     symbol=symbol,
-                    line=dict(color='white', width=2),
-                    opacity=opacity
+                    line=dict(color='white', width=2)
                 ),
-                text=[product_name.replace('Forti', '').replace(' ', '<br>')],
+                text=[product_name.replace('Forti', '')],
                 textposition="top center",
                 textfont=dict(size=8, color='#1e293b'),
                 showlegend=False,
                 name=product_name,
-                hovertemplate=f"<b>{product_name}</b><br>" +
-                             f"Categoría: {category_name}<br>" +
-                             f"Fase: {phase}<br>" +
-                             f"NIST: {product_info['nist_function']}<br>" +
-                             f"Estado: {'✅ Implementado' if is_implemented else '⭕ No implementado'}<br>" +
-                             "<extra></extra>"
+                hovertext=f"{product_name}<br>Categoría: {category_name}<br>Fase: {phase}<br>Estado: {'✅ Implementado' if is_implemented else '⭕ No implementado'}"
             ))
+            
+            product_count += 1
     
     # Marcar posición actual del usuario
     fig.add_trace(go.Scatter(
@@ -1457,62 +1426,41 @@ def show_visual_roadmap_chart(results):
         ),
         text=['USTED ESTÁ AQUÍ'],
         textposition="bottom center",
-        textfont=dict(size=12, color='#dc2626', family="Arial Black"),
+        textfont=dict(size=12, color='#dc2626'),
         showlegend=False,
         name="Posición Actual"
     ))
     
-    # Agregar leyenda manual en el gráfico
-    fig.add_annotation(
-        x=0.5, y=0.3,
-        text="🗺️ Roadmap con 40+ tecnologías de Fortinet Security Fabric<br>" +
-             "🛡️ Cobertura end-to-end: Desde Inicial hasta Excelencia (Niveles 1-5)<br>" +
-             "⭐ Use este roadmap para planificar su evolución de seguridad a largo plazo",
-        showarrow=False,
-        font=dict(size=10, color='#475569'),
-        align="left",
-        bgcolor="rgba(248, 250, 252, 0.8)",
-        bordercolor="#cbd5e1",
-        borderwidth=1
-    )
-    
-    # Configuración del gráfico
+    # Configuración simplificada del gráfico
     fig.update_layout(
-        title={
-            'text': "🛡️ FORTINET SECURITY FABRIC - ROADMAP COMPLETO - TODAS LAS TECNOLOGÍAS",
-            'x': 0.5,
-            'xanchor': 'center',
-            'font': {'size': 16, 'family': 'Arial Black', 'color': '#dc2626'}
-        },
-        xaxis=dict(
-            range=[0.5, 5.5],
-            title="Niveles de Madurez →",
-            titlefont=dict(size=14, color='#1e293b'),
-            tickvals=[1, 2, 3, 4, 5],
-            ticktext=['Nivel 1', 'Nivel 2', 'Nivel 3', 'Nivel 4', 'Nivel 5'],
-            showgrid=True,
-            gridcolor='rgba(203, 213, 225, 0.3)',
-            zeroline=False
-        ),
-        yaxis=dict(
-            range=[0, 6],
-            title="↑ Cobertura Security Fabric",
-            titlefont=dict(size=14, color='#1e293b'),
-            showticklabels=False,
-            showgrid=True,
-            gridcolor='rgba(203, 213, 225, 0.3)',
-            zeroline=False
-        ),
+        title="🛡️ FORTINET SECURITY FABRIC - ROADMAP VISUAL COMPLETO",
+        xaxis_title="Niveles de Madurez →",
+        yaxis_title="↑ Cobertura Security Fabric",
         height=700,
         showlegend=False,
         plot_bgcolor='white',
         paper_bgcolor='white',
-        hovermode='closest',
-        margin=dict(t=80, b=60, l=60, r=60)
+        hovermode='closest'
+    )
+    
+    # Configurar ejes
+    fig.update_xaxes(
+        range=[0.5, 5.5],
+        tickvals=[1, 2, 3, 4, 5],
+        ticktext=['Nivel 1', 'Nivel 2', 'Nivel 3', 'Nivel 4', 'Nivel 5'],
+        showgrid=True,
+        gridcolor='rgba(203, 213, 225, 0.3)'
+    )
+    
+    fig.update_yaxes(
+        range=[0, 6],
+        showticklabels=False,
+        showgrid=True,
+        gridcolor='rgba(203, 213, 225, 0.3)'
     )
     
     # Mostrar el gráfico
-    st.plotly_chart(fig, use_container_width=True, key="roadmap_chart")
+    st.plotly_chart(fig, use_container_width=True)
     
     # Agregar estadísticas del roadmap
     show_roadmap_statistics(results)
