@@ -973,6 +973,381 @@ def get_total_selection_count():
     non_fortinet_count = sum(1 for v in st.session_state.professional_assessment["non_fortinet_categories"].values() if v)
     return fortinet_count + non_fortinet_count
 
+# ============ NUEVAS FUNCIONES DE CLARIDAD PARA CLIENTES ============
+
+def show_executive_dashboard(results):
+    """Dashboard ejecutivo claro y directo"""
+    current_level = results['maturity_level']
+    score = results['overall_score']
+    industry = st.session_state.professional_assessment['industry']
+    
+    # Header ejecutivo
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #1e40af 0%, #3730a3 100%); color: white; padding: 2rem; border-radius: 16px; margin: 2rem 0; text-align: center;">
+        <h2 style="color: white; margin-bottom: 1rem;">📋 RESUMEN EJECUTIVO</h2>
+        <p style="font-size: 1.1rem; margin: 0;">Su posición actual en ciberseguridad y próximos pasos recomendados</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Métricas principales en cards grandes
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        # Nivel actual con contexto claro
+        level_descriptions = {
+            1: "Básico - Protección fundamental establecida",
+            2: "Intermedio - Gestión centralizada implementada", 
+            3: "Avanzado - Detección inteligente activa",
+            4: "Experto - Automatización y orquestación",
+            5: "Excelencia - Zero Trust completo"
+        }
+        
+        st.markdown(f"""
+        <div style="background: white; border-radius: 16px; padding: 2rem; box-shadow: 0 8px 24px rgba(0,0,0,0.1); text-align: center; border-left: 6px solid #dc2626;">
+            <h1 style="color: #dc2626; font-size: 3rem; margin: 0;">{current_level}</h1>
+            <h3 style="color: #1e293b; margin: 0.5rem 0;">NIVEL ACTUAL</h3>
+            <p style="color: #64748b; margin: 0; font-size: 0.9rem;">{level_descriptions[current_level]}</p>
+            <div style="background: #dc2626; height: 4px; width: {score}%; margin: 1rem auto; border-radius: 2px;"></div>
+            <p style="color: #dc2626; font-weight: bold; margin: 0;">{score:.1f}% de Madurez</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        # Comparación con industria
+        if industry in INDUSTRIES:
+            benchmark = INDUSTRIES[industry]["benchmark"]
+            gap = score - benchmark
+            gap_color = "#16a34a" if gap >= 0 else "#dc2626"
+            gap_text = "Por encima" if gap >= 0 else "Por debajo"
+            
+            st.markdown(f"""
+            <div style="background: white; border-radius: 16px; padding: 2rem; box-shadow: 0 8px 24px rgba(0,0,0,0.1); text-align: center; border-left: 6px solid {gap_color};">
+                <h1 style="color: {gap_color}; font-size: 3rem; margin: 0;">{gap:+.0f}%</h1>
+                <h3 style="color: #1e293b; margin: 0.5rem 0;">VS. INDUSTRIA</h3>
+                <p style="color: #64748b; margin: 0; font-size: 0.9rem;">{gap_text} del promedio</p>
+                <div style="background: #e5e7eb; height: 8px; border-radius: 4px; margin: 1rem 0; position: relative;">
+                    <div style="background: #64748b; height: 100%; width: {benchmark}%; border-radius: 4px;"></div>
+                    <div style="background: {gap_color}; height: 100%; width: {score}%; border-radius: 4px; position: absolute; top: 0; opacity: 0.8;"></div>
+                </div>
+                <p style="color: #64748b; margin: 0; font-size: 0.8rem;">Benchmark: {benchmark}% | Usted: {score:.1f}%</p>
+            </div>
+            """, unsafe_allow_html=True)
+    
+    with col3:
+        # ROI potencial del siguiente nivel
+        roi_potential = {1: "25-30%", 2: "35-45%", 3: "45-60%", 4: "50-70%", 5: "60%+"}
+        next_level = min(current_level + 1, 5)
+        
+        st.markdown(f"""
+        <div style="background: white; border-radius: 16px; padding: 2rem; box-shadow: 0 8px 24px rgba(0,0,0,0.1); text-align: center; border-left: 6px solid #16a34a;">
+            <h1 style="color: #16a34a; font-size: 3rem; margin: 0;">{roi_potential.get(next_level, "60%+")}</h1>
+            <h3 style="color: #1e293b; margin: 0.5rem 0;">ROI POTENCIAL</h3>
+            <p style="color: #64748b; margin: 0; font-size: 0.9rem;">Siguiente nivel de madurez</p>
+            <div style="background: #16a34a; height: 4px; width: 80%; margin: 1rem auto; border-radius: 2px;"></div>
+            <p style="color: #16a34a; font-weight: bold; margin: 0;">Ahorro estimado anual</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Mensaje principal claro
+    st.markdown("---")
+    
+    if current_level <= 2:
+        urgency_color = "#dc2626"
+        urgency_text = "🚨 ACCIÓN INMEDIATA REQUERIDA"
+        message = "Su organización tiene vulnerabilidades críticas que requieren atención inmediata. Los riesgos superan significativamente la inversión necesaria."
+    elif current_level == 3:
+        urgency_color = "#ea580c"
+        urgency_text = "⚠️ OPTIMIZACIÓN RECOMENDADA"
+        message = "Tiene una base sólida, pero hay oportunidades importantes para mejorar la eficiencia y reducir riesgos."
+    else:
+        urgency_color = "#16a34a"
+        urgency_text = "✅ EXCELENTE POSICIÓN"
+        message = "Su organización está bien posicionada. Focus en optimización y tecnologías de vanguardia."
+    
+    st.markdown(f"""
+    <div style="background: linear-gradient(135deg, rgba(220, 38, 38, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%); 
+                border: 2px solid {urgency_color}; border-radius: 12px; padding: 2rem; margin: 1rem 0; text-align: center;">
+        <h3 style="color: {urgency_color}; margin-bottom: 1rem;">{urgency_text}</h3>
+        <p style="font-size: 1.1rem; color: #1e293b; margin: 0; line-height: 1.6;">{message}</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+def show_prioritized_actions(results):
+    """Acciones claras y priorizadas para el cliente"""
+    current_level = results['maturity_level']
+    
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); border: 3px solid #dc2626; border-radius: 20px; padding: 2rem; margin: 2rem 0;">
+        <h2 style="color: #dc2626; text-align: center; margin-bottom: 1rem;">🎯 SUS PRÓXIMOS 3 PASOS CRÍTICOS</h2>
+        <p style="text-align: center; color: #7f1d1d; margin: 0;">Acciones priorizadas por impacto y urgencia</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Definir acciones específicas por nivel
+    action_plans = {
+        1: {
+            "immediate": {
+                "title": "🚨 CRÍTICO - Próximos 30 días",
+                "color": "#dc2626",
+                "actions": [
+                    "Implementar FortiGate NGFW para protección perimetral básica",
+                    "Desplegar FortiClient EMS en todos los endpoints",
+                    "Configurar FortiMail para protección de correo electrónico"
+                ],
+                "investment": "$50K-100K",
+                "roi": "ROI 200-300% en 6 meses"
+            },
+            "short_term": {
+                "title": "⚠️ IMPORTANTE - Próximos 90 días", 
+                "color": "#ea580c",
+                "actions": [
+                    "Centralizar logs con FortiAnalyzer",
+                    "Implementar MFA con FortiAuthenticator",
+                    "Establecer gestión centralizada con FortiManager"
+                ],
+                "investment": "$30K-60K",
+                "roi": "Ahorro operativo 25-40%"
+            },
+            "planning": {
+                "title": "📋 PLANIFICACIÓN - Próximos 6 meses",
+                "color": "#2563eb", 
+                "actions": [
+                    "Diseñar arquitectura Security Fabric completa",
+                    "Planificar capacitación del equipo técnico",
+                    "Evaluar necesidades de bandwidth y storage"
+                ],
+                "investment": "Planificación",
+                "roi": "Fundación para crecimiento"
+            }
+        },
+        2: {
+            "immediate": {
+                "title": "🚨 CRÍTICO - Próximos 30 días",
+                "color": "#dc2626",
+                "actions": [
+                    "Implementar FortiSIEM para correlación de eventos",
+                    "Desplegar FortiWeb para protección de aplicaciones",
+                    "Configurar FortiSandbox para análisis de malware"
+                ],
+                "investment": "$75K-150K", 
+                "roi": "Prevención de incidentes $500K+"
+            },
+            "short_term": {
+                "title": "⚠️ IMPORTANTE - Próximos 90 días",
+                "color": "#ea580c",
+                "actions": [
+                    "Automatizar respuesta a incidentes básicos",
+                    "Implementar segmentación de red avanzada",
+                    "Establecer SOC básico o partnership"
+                ],
+                "investment": "$40K-80K",
+                "roi": "Reducción 60% tiempo respuesta"
+            },
+            "planning": {
+                "title": "📋 PLANIFICACIÓN - Próximos 6 meses",
+                "color": "#2563eb",
+                "actions": [
+                    "Evaluar FortiEDR para detección avanzada",
+                    "Planificar integración con herramientas existentes", 
+                    "Desarrollar playbooks de respuesta"
+                ],
+                "investment": "Planificación",
+                "roi": "Preparación para Nivel 3"
+            }
+        },
+        3: {
+            "immediate": {
+                "title": "🚨 CRÍTICO - Próximos 30 días",
+                "color": "#dc2626", 
+                "actions": [
+                    "Implementar FortiSOAR para orquestación automática",
+                    "Desplegar FortiXDR para detección extendida",
+                    "Configurar FortiDeceptor para detección temprana"
+                ],
+                "investment": "$100K-200K",
+                "roi": "Automatización 70% respuestas"
+            },
+            "short_term": {
+                "title": "⚠️ IMPORTANTE - Próximos 90 días",
+                "color": "#ea580c",
+                "actions": [
+                    "Optimizar reglas de correlación automática",
+                    "Implementar threat hunting proactivo",
+                    "Integrar con threat intelligence feeds"
+                ],
+                "investment": "$50K-100K",
+                "roi": "Reducción 80% falsos positivos"
+            },
+            "planning": {
+                "title": "📋 PLANIFICACIÓN - Próximos 6 meses", 
+                "color": "#2563eb",
+                "actions": [
+                    "Evaluar arquitectura Zero Trust",
+                    "Planificar FortiCWP para workloads cloud",
+                    "Diseñar métricas avanzadas de seguridad"
+                ],
+                "investment": "Planificación",
+                "roi": "Evolución hacia Nivel 4"
+            }
+        },
+        4: {
+            "immediate": {
+                "title": "🚨 CRÍTICO - Próximos 30 días",
+                "color": "#dc2626",
+                "actions": [
+                    "Implementar FortiCNAPP para aplicaciones cloud",
+                    "Desplegar FortiPAM para accesos privilegiados", 
+                    "Configurar Zero Trust con FortiNAC avanzado"
+                ],
+                "investment": "$150K-300K",
+                "roi": "Protección 99.9% workloads"
+            },
+            "short_term": {
+                "title": "⚠️ IMPORTANTE - Próximos 90 días",
+                "color": "#ea580c", 
+                "actions": [
+                    "Optimizar machine learning algorithms",
+                    "Implementar behavioral analytics",
+                    "Automatizar compliance reporting"
+                ],
+                "investment": "$75K-150K",
+                "roi": "Ahorro 90% esfuerzo compliance"
+            },
+            "planning": {
+                "title": "📋 PLANIFICACIÓN - Próximos 6 meses",
+                "color": "#2563eb",
+                "actions": [
+                    "Evaluar FortiDevSec para DevSecOps",
+                    "Planificar integración con CI/CD pipelines",
+                    "Diseñar arquitectura para Nivel 5"
+                ],
+                "investment": "Planificación", 
+                "roi": "Preparación excelencia"
+            }
+        },
+        5: {
+            "immediate": {
+                "title": "🚨 OPTIMIZACIÓN - Próximos 30 días",
+                "color": "#16a34a",
+                "actions": [
+                    "Optimizar algoritmos de IA existentes",
+                    "Implementar analytics predictivos avanzados",
+                    "Configurar self-healing automático"
+                ],
+                "investment": "$75K-150K",
+                "roi": "Optimización continua"
+            },
+            "short_term": {
+                "title": "⚠️ INNOVACIÓN - Próximos 90 días",
+                "color": "#2563eb",
+                "actions": [
+                    "Evaluar tecnologías emergentes",
+                    "Implementar quantum-ready security",
+                    "Desarrollar capabilities propietarias"
+                ],
+                "investment": "$100K-200K", 
+                "roi": "Ventaja competitiva"
+            },
+            "planning": {
+                "title": "📋 LIDERAZGO - Próximos 6 meses",
+                "color": "#7c3aed",
+                "actions": [
+                    "Liderar estándares de industria",
+                    "Desarrollar partnerships estratégicos",
+                    "Compartir best practices con ecosystem"
+                ],
+                "investment": "Liderazgo",
+                "roi": "Posición de mercado"
+            }
+        }
+    }
+    
+    current_plan = action_plans.get(current_level, action_plans[1])
+    
+    # Mostrar las 3 fases de acción
+    for phase_key, phase_data in current_plan.items():
+        st.markdown(f"""
+        <div style="background: white; border-left: 6px solid {phase_data['color']}; border-radius: 12px; padding: 1.5rem; margin: 1rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            <h3 style="color: {phase_data['color']}; margin-bottom: 1rem;">{phase_data['title']}</h3>
+        """, unsafe_allow_html=True)
+        
+        for i, action in enumerate(phase_data['actions'], 1):
+            st.markdown(f"**{i}.** {action}")
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            st.markdown(f"💰 **Inversión estimada:** {phase_data['investment']}")
+        with col2:
+            st.markdown(f"📈 **ROI esperado:** {phase_data['roi']}")
+        
+        st.markdown("</div>", unsafe_allow_html=True)
+
+def show_simplified_timeline_with_costs(results):
+    """Timeline con costos y ROI claros"""
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border: 3px solid #10b981; border-radius: 20px; padding: 2rem; margin: 2rem 0;">
+        <h2 style="color: #047857; text-align: center; margin-bottom: 1rem;">💰 INVERSIÓN Y RETORNO POR FASE</h2>
+        <p style="text-align: center; color: #065f46; margin: 0;">Costos estimados y ROI esperado para cada nivel de madurez</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Datos de inversión por fase
+    investment_data = {
+        1: {"investment": "$100K-200K", "roi": "200-300%", "payback": "6-8 meses", "color": "#dc2626"},
+        2: {"investment": "$150K-300K", "roi": "250-400%", "payback": "4-6 meses", "color": "#ea580c"},
+        3: {"investment": "$200K-400K", "roi": "300-500%", "payback": "3-5 meses", "color": "#2563eb"},
+        4: {"investment": "$250K-500K", "roi": "400-600%", "payback": "2-4 meses", "color": "#16a34a"},
+        5: {"investment": "$200K-300K", "roi": "500%+", "payback": "2-3 meses", "color": "#7c3aed"}
+    }
+    
+    current_level = results['maturity_level']
+    
+    cols = st.columns(5)
+    for i, (phase_num, phase_data) in enumerate(IMPLEMENTATION_PHASES.items()):
+        with cols[i]:
+            investment_info = investment_data[phase_num]
+            is_current = phase_num == current_level
+            is_completed = phase_num < current_level
+            
+            # Determinar estilo
+            if is_current:
+                border_style = "border: 4px solid #dc2626; transform: scale(1.05);"
+                opacity = "1.0"
+                status_text = "🎯 NIVEL ACTUAL"
+            elif is_completed:
+                border_style = "border: 2px solid #16a34a;"
+                opacity = "0.8" 
+                status_text = "✅ COMPLETADO"
+            else:
+                border_style = "border: 2px dashed #9ca3af;"
+                opacity = "0.6"
+                status_text = "📅 FUTURO"
+            
+            st.markdown(f"""
+            <div style="background: white; border-radius: 16px; padding: 1.5rem; {border_style} 
+                        box-shadow: 0 8px 24px rgba(0,0,0,0.1); text-align: center; opacity: {opacity}; 
+                        margin: 0.5rem 0; transition: all 0.3s ease;">
+                
+                <div style="width: 60px; height: 60px; border-radius: 50%; background: {investment_info['color']}; 
+                            color: white; display: flex; align-items: center; justify-content: center; 
+                            margin: 0 auto 1rem auto; font-size: 1.5rem; font-weight: bold;">
+                    {phase_num}
+                </div>
+                
+                <h4 style="color: #1e293b; margin: 0.5rem 0; font-size: 0.9rem; line-height: 1.2;">{phase_data['name']}</h4>
+                
+                <div style="background: #f8fafc; border-radius: 8px; padding: 1rem; margin: 1rem 0;">
+                    <p style="margin: 0.25rem 0; font-size: 0.8rem; color: #374151;"><strong>💰 Inversión:</strong><br>{investment_info['investment']}</p>
+                    <p style="margin: 0.25rem 0; font-size: 0.8rem; color: #374151;"><strong>📈 ROI:</strong><br>{investment_info['roi']}</p>
+                    <p style="margin: 0.25rem 0; font-size: 0.8rem; color: #374151;"><strong>⏱️ Payback:</strong><br>{investment_info['payback']}</p>
+                </div>
+                
+                <p style="font-size: 0.75rem; color: {investment_info['color']}; font-weight: bold; margin: 0.5rem 0;">{status_text}</p>
+            </div>
+            """, unsafe_allow_html=True)
+
+# ============ FUNCIONES PRINCIPALES CONTINUADAS ============
+
 def show_professional_results(assessment):
     results = assessment.calculate_enhanced_maturity()
     
@@ -985,11 +1360,19 @@ def show_professional_results(assessment):
     </div>
     """, unsafe_allow_html=True)
     
-    # Timeline corregido sin errores
-    show_simplified_timeline(results)
+    # NUEVA SECCIÓN: Dashboard Ejecutivo
+    show_executive_dashboard(results)
     
-    # AGREGAR ESTAS DOS LÍNEAS - Nuevas secciones de beneficios
+    # Timeline mejorado con costos
+    show_simplified_timeline_with_costs(results)
+    
+    # Gráfico visual del roadmap
+    show_visual_roadmap_chart(results)
+    
+    # Sección de beneficios por nivel
     show_maturity_benefits(results)
+    
+    # Propuesta de valor vs competencia
     show_fortinet_value_proposition()
     
     tab1, tab2, tab3 = st.tabs(["📊 Análisis Actual", "🗺️ Roadmap por Fases", "📈 NIST Framework"])
@@ -1003,78 +1386,13 @@ def show_professional_results(assessment):
     with tab3:
         show_nist_analysis(results)
     
-    with st.expander("🎯 Próximos Pasos Recomendados", expanded=True):
-        show_next_steps_recommendations(results)
+    # NUEVA SECCIÓN: Acciones priorizadas
+    show_prioritized_actions(results)
     
     if st.button("🔄 Nuevo Assessment", use_container_width=True):
         for key in st.session_state.keys():
             del st.session_state[key]
         st.rerun()
-
-def show_simplified_timeline(results):
-    st.markdown("""
-    <div class="timeline-container">
-        <h3>🗺️ TIMELINE DE EVOLUCIÓN HACIA EXCELENCIA</h3>
-        <p>Su posición actual y roadmap hacia una estrategia de seguridad madura</p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    current_level = results['maturity_level']
-    cols = st.columns(5)
-    
-    for i, (phase_num, phase_data) in enumerate(IMPLEMENTATION_PHASES.items()):
-        with cols[i]:
-            is_current = phase_num == current_level
-            is_completed = phase_num <= current_level
-            
-            if is_current:
-                st.markdown(f"""
-                <div style='text-align: center;'>
-                    <div style='width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-weight: bold; background: {phase_data['color']}; color: white; border: 4px solid #dc2626; font-size: 1.2rem; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);'>
-                        {phase_num}
-                    </div>
-                    <div style='margin-top: 0.8rem; font-size: 0.9rem; font-weight: 600; line-height: 1.3;'>{phase_data['name']}</div>
-                    <div style='margin-top: 0.3rem; font-size: 0.8rem; color: #6b7280;'>{phase_data['timeline']}</div>
-                    <div style='margin-top: 0.8rem;'><strong style='color: #dc2626; font-size: 0.8rem;'>🎯 USTED ESTÁ AQUÍ</strong></div>
-                </div>
-                """, unsafe_allow_html=True)
-            elif is_completed:
-                st.markdown(f"""
-                <div style='text-align: center;'>
-                    <div style='width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-weight: bold; background: {phase_data['color']}; color: white; opacity: 0.8;'>
-                        {phase_num}
-                    </div>
-                    <div style='margin-top: 0.5rem; font-size: 0.85rem; font-weight: 600; line-height: 1.3;'>{phase_data['name']}</div>
-                    <div style='margin-top: 0.25rem; font-size: 0.75rem; color: #6b7280;'>{phase_data['timeline']}</div>
-                    <div style='margin-top: 0.5rem;'><span style='color: #16a34a; font-size: 0.8rem;'>✅ Completado</span></div>
-                </div>
-                """, unsafe_allow_html=True)
-            else:
-                st.markdown(f"""
-                <div style='text-align: center;'>
-                    <div style='width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-weight: bold; background: #e5e7eb; color: #6b7280; border: 2px dashed #9ca3af;'>
-                        {phase_num}
-                    </div>
-                    <div style='margin-top: 0.5rem; font-size: 0.85rem; font-weight: 600; line-height: 1.3; color: #6b7280;'>{phase_data['name']}</div>
-                    <div style='margin-top: 0.25rem; font-size: 0.75rem; color: #9ca3af;'>{phase_data['timeline']}</div>
-                    <div style='margin-top: 0.5rem;'><span style='color: #6b7280; font-size: 0.8rem;'>📅 Futuro</span></div>
-                </div>
-                """, unsafe_allow_html=True)
-    
-    # Línea de progreso
-    st.markdown("""
-    <div style='margin: 2rem auto; max-width: 80%;'>
-        <div style='height: 4px; background: #e5e7eb; border-radius: 2px; position: relative;'>
-            <div style='height: 100%; background: linear-gradient(90deg, #dc2626 0%, #ea580c 25%, #2563eb 50%, #16a34a 75%, #7c3aed 100%); border-radius: 2px; width: {}%;'></div>
-        </div>
-        <div style='text-align: center; margin-top: 0.5rem; font-size: 0.8rem; color: #6b7280;'>
-            Progreso de Implementación: {}%
-        </div>
-    </div>
-    """.format((current_level / 5) * 100, int((current_level / 5) * 100)), unsafe_allow_html=True)
-    
-    st.markdown("---")
-    show_visual_roadmap_chart(results)
 
 def show_maturity_benefits(results):
     """Muestra los beneficios específicos por nivel de madurez"""
@@ -1407,121 +1725,6 @@ def show_nist_analysis(results):
         
         avg_score = sum(results['function_scores'].values()) / len(results['function_scores'])
         st.metric("Puntaje Promedio NIST", f"{avg_score:.1f}%")
-
-def show_next_steps_recommendations(results):
-    """Próximos pasos recomendados basados en industria y tamaño"""
-    st.markdown("""
-    <div style="background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); border: 3px solid #dc2626; border-radius: 20px; padding: 2rem; margin: 1rem 0;">
-        <h3 style="color: #dc2626; text-align: center; margin-bottom: 1.5rem;">🎯 Próximos Pasos Recomendados</h3>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    industry = st.session_state.professional_assessment['industry']
-    company_size = st.session_state.professional_assessment['company_size']
-    current_level = results['maturity_level']
-    
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.markdown("""
-        <div style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border: 2px solid #3b82f6; border-radius: 16px; padding: 1.5rem; margin: 0.5rem 0;">
-            <h4 style="color: #1d4ed8; margin-bottom: 1rem;">📊 Análisis de Madurez Contextual</h4>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        if industry in INDUSTRIES:
-            industry_data = INDUSTRIES[industry]
-            benchmark = industry_data["benchmark"]
-            
-            col_metric1, col_metric2 = st.columns(2)
-            with col_metric1:
-                st.metric("Nivel Actual", current_level, f"{results['overall_score']:.1f}%")
-            with col_metric2:
-                expected_level = 4.2 if company_size == "Empresa (5000+ empleados)" else 3.5
-                st.metric("Nivel Esperado", f"{expected_level}", "Por debajo del promedio" if current_level < expected_level else "")
-        
-        st.markdown("**🔍 Análisis para {} / {}**".format(company_size, industry))
-        
-        if company_size in COMPANY_SIZES:
-            size_data = COMPANY_SIZES[company_size]
-            st.info(f"Existe una brecha significativa entre su nivel actual y lo esperado para {company_size}.")
-            
-            st.markdown("**🎯 Prioridades de {} / {}:**".format(company_size.split()[0], industry))
-            if industry in INDUSTRIES:
-                priorities = INDUSTRIES[industry]["priorities"]
-                for i, priority in enumerate(priorities, 1):
-                    st.write(f"{i}. {priority}")
-            
-            st.markdown("**⚠️ Desafíos Típicos:**")
-            challenges = ["Amenazas sofisticadas", "Regulatory compliance", "Digital transformation"]
-            for challenge in challenges:
-                st.write(f"• {challenge}")
-    
-    with col2:
-        st.markdown("""
-        <div style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 2px solid #22c55e; border-radius: 16px; padding: 1.5rem; margin: 0.5rem 0;">
-            <h4 style="color: #15803d; margin-bottom: 1rem;">🚀 Próximos Pasos Estratégicos</h4>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        if company_size in COMPANY_SIZES and industry in INDUSTRIES:
-            size_data = COMPANY_SIZES[company_size]
-            industry_data = INDUSTRIES[industry]
-            
-            st.markdown("**📋 Acciones Inmediatas (Próximos 3 meses):**")
-            
-            critical_products = industry_data["critical_products"]
-            implemented_critical = []
-            missing_critical = []
-            
-            for product in critical_products:
-                found = False
-                for category_name, category_data in FORTINET_COMPLETE_PORTFOLIO.items():
-                    if product in category_data["products"]:
-                        product_key = f"{category_name}_{product}"
-                        if st.session_state.professional_assessment["fortinet_products"].get(product_key, False):
-                            implemented_critical.append(product)
-                            found = True
-                            break
-                if not found or product not in [p for p in implemented_critical]:
-                    missing_critical.append(product)
-            
-            st.markdown(f"1. **{industry_data['next_steps']}**")
-            st.markdown(f"2. **{size_data['next_steps']}**")
-            
-            if missing_critical:
-                st.markdown("3. **Implementar productos críticos faltantes:**")
-                for product in missing_critical[:3]:
-                    st.write(f"   • {product}")
-            
-            st.markdown("4. **Mejorar visibilidad y monitoreo continuo**")
-            st.markdown("5. **Establecer métricas de seguridad**")
-            
-            if "regulations" in industry_data:
-                st.markdown("**📜 Cumplimiento Regulatorio:**")
-                for reg in industry_data["regulations"]:
-                    st.write(f"• {reg}")
-    
-    st.markdown("""
-    <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid #0ea5e9; border-radius: 16px; padding: 1.5rem; margin: 1rem 0;">
-        <h4 style="color: #0369a1; margin-bottom: 1rem;">🗺️ Roadmap Personalizado para {} / {}</h4>
-    </div>
-    """.format(company_size.split()[0], industry), unsafe_allow_html=True)
-    
-    phases_data = []
-    for phase_num, phase_data in IMPLEMENTATION_PHASES.items():
-        if phase_num <= current_level + 2:
-            status = "✅ Completado" if phase_num <= current_level else "🎯 Siguiente" if phase_num == current_level + 1 else "📅 Futuro"
-            phases_data.append({
-                "Fase": f"Nivel {phase_num}",
-                "Nombre": phase_data['name'],
-                "Estado": status,
-                "Timeline": phase_data['timeline'],
-                "Enfoque": phase_data['focus']
-            })
-    
-    df_roadmap = pd.DataFrame(phases_data)
-    st.dataframe(df_roadmap, use_container_width=True, hide_index=True)
 
 def show_visual_roadmap_chart(results):
     """Crea el gráfico visual mejorado con diseño más profesional y natural"""
