@@ -16,22 +16,24 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# CSS profesional y responsive
+# CSS profesional y responsive corregido
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     
     .stApp {
         font-family: 'Inter', sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
     }
     
     .main-header {
         background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 50%, #7c3aed 100%);
-        padding: clamp(1rem, 5vw, 3rem) clamp(1rem, 4vw, 2rem);
+        padding: 2rem 1.5rem;
         border-radius: 20px;
         color: white;
         text-align: center;
-        margin-bottom: clamp(1rem, 5vw, 3rem);
+        margin-bottom: 2rem;
         box-shadow: 0 20px 40px rgba(0,0,0,0.1);
         position: relative;
         overflow: hidden;
@@ -50,42 +52,56 @@ st.markdown("""
     
     .fortinet-logo {
         color: white;
-        font-size: clamp(1.5rem, 6vw, 2.5rem);
+        font-size: 2rem;
         font-weight: 700;
-        margin-bottom: 1rem;
+        margin-bottom: 0.5rem;
         position: relative;
         z-index: 1;
     }
     
+    .main-header h2 {
+        font-size: 1.5rem;
+        margin: 0.5rem 0;
+        font-weight: 600;
+    }
+    
+    .main-header p {
+        font-size: 1rem;
+        margin: 0;
+        opacity: 0.9;
+    }
+    
     .section-header {
         background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-        padding: clamp(1rem, 4vw, 2rem);
+        padding: 1.5rem;
         border-radius: 16px;
-        margin: clamp(1rem, 3vw, 2rem) 0 clamp(0.5rem, 2vw, 1.5rem) 0;
+        margin: 1.5rem 0;
         border-left: 6px solid #3730a3;
         text-align: center;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     }
     
     .section-header h3 {
-        font-size: clamp(1rem, 4vw, 1.5rem);
+        font-size: 1.25rem;
         margin-bottom: 0.5rem;
+        color: #1e293b;
     }
     
     .section-header p {
-        font-size: clamp(0.8rem, 3vw, 1rem);
+        font-size: 0.95rem;
         margin: 0;
+        color: #64748b;
     }
     
     .category-header {
         background: linear-gradient(135deg, #3730a3 0%, #7c3aed 100%);
         color: white;
-        padding: clamp(1rem, 3vw, 1.5rem) clamp(1rem, 4vw, 2rem);
+        padding: 1rem 1.5rem;
         border-radius: 16px;
-        margin: clamp(1rem, 3vw, 2rem) 0 clamp(0.5rem, 2vw, 1.5rem) 0;
+        margin: 1.5rem 0;
         text-align: center;
         font-weight: 600;
-        font-size: clamp(1rem, 3.5vw, 1.25rem);
+        font-size: 1.1rem;
         box-shadow: 0 8px 16px rgba(55, 48, 163, 0.3);
     }
     
@@ -93,22 +109,29 @@ st.markdown("""
         background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
         border: 3px solid #22c55e;
         border-radius: 20px;
-        padding: clamp(1rem, 4vw, 2.5rem);
-        margin: clamp(1rem, 3vw, 2rem) 0;
+        padding: 1.5rem;
+        margin: 1.5rem 0;
         box-shadow: 0 10px 25px rgba(34, 197, 94, 0.1);
     }
     
     .timeline-container h3 {
-        font-size: clamp(1rem, 4vw, 1.5rem);
-        margin-bottom: 1rem;
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+        color: #15803d;
+    }
+    
+    .timeline-container p {
+        font-size: 0.95rem;
+        margin: 0;
+        color: #16a34a;
     }
     
     .phase-card {
         background: white;
         border: 2px solid #e5e7eb;
         border-radius: 16px;
-        padding: clamp(0.8rem, 3vw, 1.5rem);
-        margin: clamp(0.5rem, 2vw, 1rem) 0;
+        padding: 1rem;
+        margin: 0.75rem 0;
         transition: all 0.3s ease;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     }
@@ -123,48 +146,52 @@ st.markdown("""
         background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
         border: 2px solid #dc2626;
         border-radius: 16px;
-        padding: clamp(1rem, 3vw, 2rem);
-        margin: clamp(0.5rem, 2vw, 1.5rem) 0;
+        padding: 1.25rem;
+        margin: 1rem 0;
         box-shadow: 0 4px 6px rgba(220, 38, 38, 0.1);
     }
     
     .fortinet-section h4 {
-        font-size: clamp(1rem, 3.5vw, 1.2rem);
-        margin-bottom: 0.5rem;
+        font-size: 1.1rem;
+        margin-bottom: 0.75rem;
+        color: #dc2626;
     }
     
     .non-fortinet-section {
         background: linear-gradient(135deg, #f0f9ff 0%, #dbeafe 100%);
         border: 2px solid #2563eb;
         border-radius: 16px;
-        padding: clamp(1rem, 3vw, 2rem);
-        margin: clamp(0.5rem, 2vw, 1.5rem) 0;
+        padding: 1.25rem;
+        margin: 1rem 0;
         box-shadow: 0 4px 6px rgba(37, 99, 235, 0.1);
     }
     
     .non-fortinet-section h4 {
-        font-size: clamp(1rem, 3.5vw, 1.2rem);
-        margin-bottom: 0.5rem;
+        font-size: 1.1rem;
+        margin-bottom: 0.75rem;
+        color: #2563eb;
     }
     
     .metric-card {
         background: white;
         border-radius: 16px;
-        padding: clamp(0.8rem, 3vw, 1.5rem);
+        padding: 1rem;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
         border: 1px solid #e5e7eb;
         text-align: center;
-        margin-bottom: 1rem;
+        margin-bottom: 0.75rem;
     }
     
     .metric-card h3 {
-        font-size: clamp(1.2rem, 5vw, 2rem);
-        margin: 0 0 0.5rem 0;
+        font-size: 1.5rem;
+        margin: 0 0 0.25rem 0;
+        font-weight: 700;
     }
     
     .metric-card p {
-        font-size: clamp(0.8rem, 3vw, 1rem);
+        font-size: 0.85rem;
         margin: 0;
+        color: #64748b;
     }
     
     .progress-bar {
@@ -185,12 +212,12 @@ st.markdown("""
         background: white;
         border: 2px solid #e5e7eb;
         border-radius: 16px;
-        padding: clamp(1rem, 3vw, 2rem);
+        padding: 1.25rem;
         margin: 0.5rem;
         text-align: center;
         cursor: pointer;
         transition: all 0.3s ease;
-        min-height: clamp(120px, 15vw, 140px);
+        min-height: 120px;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -208,38 +235,108 @@ st.markdown("""
         box-shadow: 0 8px 25px rgba(55, 48, 163, 0.2);
     }
     
-    /* Responsive adjustments */
+    /* Ajustes específicos para Streamlit */
+    .stButton > button {
+        font-size: 0.9rem !important;
+        padding: 0.5rem 1rem !important;
+        width: 100% !important;
+        border-radius: 8px !important;
+    }
+    
+    .stCheckbox > label {
+        font-size: 0.9rem !important;
+    }
+    
+    .stSelectbox > label {
+        font-size: 0.9rem !important;
+    }
+    
+    .stMetric > label {
+        font-size: 0.8rem !important;
+    }
+    
+    .stDataFrame {
+        font-size: 0.85rem !important;
+    }
+    
+    /* Responsive breakpoints */
+    @media (max-width: 1024px) {
+        .stApp {
+            max-width: 95%;
+        }
+        
+        .main-header {
+            padding: 1.5rem 1rem;
+        }
+        
+        .fortinet-logo {
+            font-size: 1.75rem;
+        }
+        
+        .main-header h2 {
+            font-size: 1.25rem;
+        }
+    }
+    
     @media (max-width: 768px) {
+        .main-header {
+            padding: 1rem;
+            border-radius: 15px;
+        }
+        
+        .fortinet-logo {
+            font-size: 1.5rem;
+        }
+        
+        .main-header h2 {
+            font-size: 1.1rem;
+        }
+        
+        .main-header p {
+            font-size: 0.9rem;
+        }
+        
+        .section-header, .category-header {
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
         .stButton > button {
             font-size: 0.8rem !important;
-            padding: 0.5rem 1rem !important;
-        }
-        
-        .stCheckbox > label {
-            font-size: 0.9rem !important;
-        }
-        
-        .stSelectbox > label {
-            font-size: 0.9rem !important;
-        }
-        
-        .metric-card {
-            margin-bottom: 0.5rem;
+            padding: 0.4rem 0.8rem !important;
         }
     }
     
     @media (max-width: 480px) {
         .main-header {
+            padding: 0.75rem;
             border-radius: 10px;
         }
         
+        .fortinet-logo {
+            font-size: 1.25rem;
+        }
+        
+        .main-header h2 {
+            font-size: 1rem;
+        }
+        
+        .main-header p {
+            font-size: 0.8rem;
+        }
+        
         .section-header, .category-header {
+            padding: 0.75rem;
             border-radius: 10px;
         }
         
         .stButton > button {
-            font-size: 0.7rem !important;
-            padding: 0.4rem 0.8rem !important;
+            font-size: 0.75rem !important;
+            padding: 0.35rem 0.7rem !important;
+        }
+        
+        .metric-card {
+            padding: 0.75rem;
         }
     }
 </style>
