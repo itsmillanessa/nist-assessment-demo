@@ -16,7 +16,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# CSS profesional mejorado
+# CSS profesional y responsive
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -27,11 +27,11 @@ st.markdown("""
     
     .main-header {
         background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 50%, #7c3aed 100%);
-        padding: 3rem 2rem;
+        padding: clamp(1rem, 5vw, 3rem) clamp(1rem, 4vw, 2rem);
         border-radius: 20px;
         color: white;
         text-align: center;
-        margin-bottom: 3rem;
+        margin-bottom: clamp(1rem, 5vw, 3rem);
         box-shadow: 0 20px 40px rgba(0,0,0,0.1);
         position: relative;
         overflow: hidden;
@@ -50,7 +50,7 @@ st.markdown("""
     
     .fortinet-logo {
         color: white;
-        font-size: 2.5rem;
+        font-size: clamp(1.5rem, 6vw, 2.5rem);
         font-weight: 700;
         margin-bottom: 1rem;
         position: relative;
@@ -59,23 +59,33 @@ st.markdown("""
     
     .section-header {
         background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-        padding: 2rem;
+        padding: clamp(1rem, 4vw, 2rem);
         border-radius: 16px;
-        margin: 2rem 0 1.5rem 0;
+        margin: clamp(1rem, 3vw, 2rem) 0 clamp(0.5rem, 2vw, 1.5rem) 0;
         border-left: 6px solid #3730a3;
         text-align: center;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     }
     
+    .section-header h3 {
+        font-size: clamp(1rem, 4vw, 1.5rem);
+        margin-bottom: 0.5rem;
+    }
+    
+    .section-header p {
+        font-size: clamp(0.8rem, 3vw, 1rem);
+        margin: 0;
+    }
+    
     .category-header {
         background: linear-gradient(135deg, #3730a3 0%, #7c3aed 100%);
         color: white;
-        padding: 1.5rem 2rem;
+        padding: clamp(1rem, 3vw, 1.5rem) clamp(1rem, 4vw, 2rem);
         border-radius: 16px;
-        margin: 2rem 0 1.5rem 0;
+        margin: clamp(1rem, 3vw, 2rem) 0 clamp(0.5rem, 2vw, 1.5rem) 0;
         text-align: center;
         font-weight: 600;
-        font-size: 1.25rem;
+        font-size: clamp(1rem, 3.5vw, 1.25rem);
         box-shadow: 0 8px 16px rgba(55, 48, 163, 0.3);
     }
     
@@ -83,17 +93,22 @@ st.markdown("""
         background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
         border: 3px solid #22c55e;
         border-radius: 20px;
-        padding: 2.5rem;
-        margin: 2rem 0;
+        padding: clamp(1rem, 4vw, 2.5rem);
+        margin: clamp(1rem, 3vw, 2rem) 0;
         box-shadow: 0 10px 25px rgba(34, 197, 94, 0.1);
+    }
+    
+    .timeline-container h3 {
+        font-size: clamp(1rem, 4vw, 1.5rem);
+        margin-bottom: 1rem;
     }
     
     .phase-card {
         background: white;
         border: 2px solid #e5e7eb;
         border-radius: 16px;
-        padding: 1.5rem;
-        margin: 1rem 0;
+        padding: clamp(0.8rem, 3vw, 1.5rem);
+        margin: clamp(0.5rem, 2vw, 1rem) 0;
         transition: all 0.3s ease;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     }
@@ -108,41 +123,48 @@ st.markdown("""
         background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
         border: 2px solid #dc2626;
         border-radius: 16px;
-        padding: 2rem;
-        margin: 1.5rem 0;
+        padding: clamp(1rem, 3vw, 2rem);
+        margin: clamp(0.5rem, 2vw, 1.5rem) 0;
         box-shadow: 0 4px 6px rgba(220, 38, 38, 0.1);
+    }
+    
+    .fortinet-section h4 {
+        font-size: clamp(1rem, 3.5vw, 1.2rem);
+        margin-bottom: 0.5rem;
     }
     
     .non-fortinet-section {
         background: linear-gradient(135deg, #f0f9ff 0%, #dbeafe 100%);
         border: 2px solid #2563eb;
         border-radius: 16px;
-        padding: 2rem;
-        margin: 1.5rem 0;
+        padding: clamp(1rem, 3vw, 2rem);
+        margin: clamp(0.5rem, 2vw, 1.5rem) 0;
         box-shadow: 0 4px 6px rgba(37, 99, 235, 0.1);
     }
     
-    .product-card {
-        background: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 12px;
-        padding: 1rem;
-        margin: 0.5rem 0;
-        transition: all 0.2s ease;
-    }
-    
-    .product-card:hover {
-        border-color: #dc2626;
-        box-shadow: 0 4px 8px rgba(220, 38, 38, 0.1);
+    .non-fortinet-section h4 {
+        font-size: clamp(1rem, 3.5vw, 1.2rem);
+        margin-bottom: 0.5rem;
     }
     
     .metric-card {
         background: white;
         border-radius: 16px;
-        padding: 1.5rem;
+        padding: clamp(0.8rem, 3vw, 1.5rem);
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
         border: 1px solid #e5e7eb;
         text-align: center;
+        margin-bottom: 1rem;
+    }
+    
+    .metric-card h3 {
+        font-size: clamp(1.2rem, 5vw, 2rem);
+        margin: 0 0 0.5rem 0;
+    }
+    
+    .metric-card p {
+        font-size: clamp(0.8rem, 3vw, 1rem);
+        margin: 0;
     }
     
     .progress-bar {
@@ -163,12 +185,12 @@ st.markdown("""
         background: white;
         border: 2px solid #e5e7eb;
         border-radius: 16px;
-        padding: 2rem;
+        padding: clamp(1rem, 3vw, 2rem);
         margin: 0.5rem;
         text-align: center;
         cursor: pointer;
         transition: all 0.3s ease;
-        min-height: 140px;
+        min-height: clamp(120px, 15vw, 140px);
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -184,6 +206,41 @@ st.markdown("""
         border-color: #3730a3;
         background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
         box-shadow: 0 8px 25px rgba(55, 48, 163, 0.2);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .stButton > button {
+            font-size: 0.8rem !important;
+            padding: 0.5rem 1rem !important;
+        }
+        
+        .stCheckbox > label {
+            font-size: 0.9rem !important;
+        }
+        
+        .stSelectbox > label {
+            font-size: 0.9rem !important;
+        }
+        
+        .metric-card {
+            margin-bottom: 0.5rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .main-header {
+            border-radius: 10px;
+        }
+        
+        .section-header, .category-header {
+            border-radius: 10px;
+        }
+        
+        .stButton > button {
+            font-size: 0.7rem !important;
+            padding: 0.4rem 0.8rem !important;
+        }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -1342,11 +1399,11 @@ def show_next_steps_recommendations(results):
     st.dataframe(df_roadmap, use_container_width=True, hide_index=True)
 
 def show_visual_roadmap_chart(results):
-    """Crea el gráfico visual interactivo mejorado como en la imagen de referencia"""
+    """Crea el gráfico visual interactivo mejorado y responsive"""
     st.markdown("""
-    <div style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border: 2px solid #64748b; border-radius: 20px; padding: 2rem; margin: 2rem 0;">
-        <h3 style="color: #1e293b; text-align: center; margin-bottom: 1.5rem;">🗺️ FORTINET SECURITY FABRIC - ROADMAP DE MADUREZ</h3>
-        <p style="text-align: center; color: #64748b; margin-bottom: 1rem;">ROADMAP COMPLETO - TODAS LAS TECNOLOGÍAS</p>
+    <div style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border: 2px solid #64748b; border-radius: 20px; padding: 1rem; margin: 1rem 0;">
+        <h3 style="color: #1e293b; text-align: center; margin-bottom: 1rem; font-size: clamp(1rem, 4vw, 1.5rem);">🗺️ FORTINET SECURITY FABRIC</h3>
+        <p style="text-align: center; color: #64748b; margin-bottom: 0.5rem; font-size: clamp(0.8rem, 2.5vw, 1rem);">ROADMAP COMPLETO - TODAS LAS TECNOLOGÍAS</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -1356,7 +1413,7 @@ def show_visual_roadmap_chart(results):
     fig = go.Figure()
     
     # Definir colores y etiquetas por nivel
-    level_colors = ['#ffebee', '#fff3e0', '#e3f2fd', '#e8f5e8', '#f3e5f5']  # Colores pastel
+    level_colors = ['#ffebee', '#fff3e0', '#e3f2fd', '#e8f5e8', '#f3e5f5']
     level_names = ['Nivel 1\nInicial', 'Nivel 2\nBásico', 'Nivel 3\nIntermedio', 'Nivel 4\nAvanzado', 'Nivel 5\nExcelencia']
     level_descriptions = ['Fundamentos', 'Consolidación', 'Detección Avanzada', 'Optimización', 'Zero Trust & AI']
     
@@ -1376,7 +1433,7 @@ def show_visual_roadmap_chart(results):
             x=i+1, y=5.8,
             text=f"<b>{level_names[i]}</b>",
             showarrow=False,
-            font=dict(size=11, color='#1e293b', family="Arial Black"),
+            font=dict(size=10, color='#1e293b'),
             align="center"
         )
         
@@ -1385,16 +1442,16 @@ def show_visual_roadmap_chart(results):
             x=i+1, y=0.2,
             text=level_descriptions[i],
             showarrow=False,
-            font=dict(size=9, color='#64748b'),
+            font=dict(size=8, color='#64748b'),
             align="center"
         )
     
-    # Línea principal del roadmap (más prominente y colorida)
+    # Línea principal del roadmap
     fig.add_trace(go.Scatter(
         x=[0.7, 5.3],
         y=[0.8, 5.2],
         mode='lines',
-        line=dict(color='#4f46e5', width=6, dash='solid'),
+        line=dict(color='#4f46e5', width=5),
         showlegend=False,
         name='Roadmap Principal'
     ))
@@ -1408,18 +1465,18 @@ def show_visual_roadmap_chart(results):
             layer="below"
         )
     
-    # Distribuir productos de manera más organizada
+    # Distribuir productos de manera organizada y responsive
     y_levels = {
-        1: [1.0, 1.4, 1.8, 2.2, 2.6, 3.0, 3.4],  # Nivel 1
-        2: [1.2, 1.6, 2.0, 2.4, 2.8, 3.2, 3.6],  # Nivel 2  
-        3: [1.4, 1.8, 2.2, 2.6, 3.0, 3.4, 3.8],  # Nivel 3
-        4: [1.6, 2.0, 2.4, 2.8, 3.2, 3.6, 4.0],  # Nivel 4
-        5: [1.8, 2.2, 2.6, 3.0, 3.4, 3.8, 4.2]   # Nivel 5
+        1: [1.0, 1.4, 1.8, 2.2, 2.6, 3.0, 3.4],
+        2: [1.2, 1.6, 2.0, 2.4, 2.8, 3.2, 3.6],
+        3: [1.4, 1.8, 2.2, 2.6, 3.0, 3.4, 3.8],
+        4: [1.6, 2.0, 2.4, 2.8, 3.2, 3.6, 4.0],
+        5: [1.8, 2.2, 2.6, 3.0, 3.4, 3.8, 4.2]
     }
     
     phase_counters = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
     
-    # Posicionar productos por fase de manera organizada
+    # Posicionar productos por fase
     for category_name, category_data in FORTINET_COMPLETE_PORTFOLIO.items():
         for product_name, product_info in category_data["products"].items():
             phase = product_info['implementation_phase']
@@ -1431,25 +1488,29 @@ def show_visual_roadmap_chart(results):
             # Posición organizada por fase
             y_index = phase_counters[phase] % len(y_levels[phase])
             y_pos = y_levels[phase][y_index]
-            x_pos = phase + (phase_counters[phase] // len(y_levels[phase])) * 0.15 - 0.15
+            x_pos = phase + (phase_counters[phase] // len(y_levels[phase])) * 0.12 - 0.12
             
             phase_counters[phase] += 1
             
             # Color y estilo según implementación y fase
             if is_implemented:
-                color = '#10b981'  # Verde vibrante para implementado
-                size = 18
+                color = '#10b981'
+                size = 16
                 symbol = 'circle'
                 line_color = '#059669'
                 line_width = 3
             else:
-                # Colores diferentes según la fase para productos no implementados
                 phase_colors = {1: '#ef4444', 2: '#f97316', 3: '#3b82f6', 4: '#10b981', 5: '#8b5cf6'}
                 color = phase_colors[phase]
-                size = 14
+                size = 12
                 symbol = 'circle-open'
                 line_color = color
                 line_width = 2
+            
+            # Nombre del producto más corto para móviles
+            product_display = product_name.replace('Forti', '').replace(' ', '\n')
+            if len(product_display) > 12:
+                product_display = product_display[:10] + '...'
             
             # Agregar punto del producto
             fig.add_trace(go.Scatter(
@@ -1463,33 +1524,33 @@ def show_visual_roadmap_chart(results):
                     line=dict(color=line_color, width=line_width),
                     opacity=0.9
                 ),
-                text=[product_name.replace('Forti', '').replace(' ', '<br>')],
+                text=[product_display],
                 textposition="top center",
-                textfont=dict(size=7, color='#1e293b', family="Arial"),
+                textfont=dict(size=6, color='#1e293b'),
                 showlegend=False,
                 name=product_name,
                 hovertext=f"<b>{product_name}</b><br>📁 {category_name}<br>📊 Fase {phase}<br>🎯 {product_info['nist_function']}<br>{'✅ Implementado' if is_implemented else '⭕ Recomendado'}"
             ))
     
-    # Marcar posición actual del usuario con estilo mejorado
+    # Marcar posición actual del usuario
     fig.add_trace(go.Scatter(
         x=[current_level],
         y=[5.4],
         mode='markers+text',
         marker=dict(
-            size=40,
+            size=35,
             color='#dc2626',
             symbol='star',
-            line=dict(color='#991b1b', width=4)
+            line=dict(color='#991b1b', width=3)
         ),
-        text=['USTED ESTÁ AQUÍ'],
+        text=['ESTÁ AQUÍ'],
         textposition="bottom center",
-        textfont=dict(size=14, color='#dc2626', family="Arial Black"),
+        textfont=dict(size=11, color='#dc2626'),
         showlegend=False,
         name="Posición Actual"
     ))
     
-    # Agregar indicador de progreso en la línea principal
+    # Indicador de progreso en la línea principal
     progress_x = [0.7 + (current_level - 1) * (4.6 / 4)]
     progress_y = [0.8 + (current_level - 1) * (4.4 / 4)]
     
@@ -1498,62 +1559,63 @@ def show_visual_roadmap_chart(results):
         y=progress_y,
         mode='markers',
         marker=dict(
-            size=25,
+            size=20,
             color='#dc2626',
             symbol='circle',
-            line=dict(color='white', width=3)
+            line=dict(color='white', width=2)
         ),
         showlegend=False,
         name="Progreso Actual"
     ))
     
-    # Agregar leyenda informativa
+    # Leyenda simplificada para móviles
     fig.add_annotation(
-        x=2.5, y=0.5,
-        text="🗺️ <b>Roadmap con 40+ tecnologías de Fortinet Security Fabric</b><br>" +
-             "🛡️ <b>Cobertura end-to-end:</b> Desde Inicial hasta Excelencia (Niveles 1-5)<br>" +
-             "⭐ <b>Círculos verdes:</b> Tecnologías implementadas | <b>Círculos abiertos:</b> Recomendadas<br>" +
-             "🎯 <b>Siga la línea azul</b> para su evolución de seguridad a largo plazo",
+        x=2.5, y=0.6,
+        text="🗺️ <b>40+ Tecnologías Fortinet</b><br>" +
+             "🟢 <b>Verde:</b> Implementado | ⚪ <b>Abierto:</b> Recomendado<br>" +
+             "🎯 <b>Siga la línea azul</b> para evolucionar su seguridad",
         showarrow=False,
-        font=dict(size=10, color='#374151'),
+        font=dict(size=9, color='#374151'),
         align="center",
         bgcolor="rgba(255, 255, 255, 0.9)",
         bordercolor="#d1d5db",
-        borderwidth=2,
-        borderpad=10
+        borderwidth=1,
+        borderpad=5
     )
     
-    # Configuración mejorada del gráfico
+    # Configuración básica y responsive del gráfico
     fig.update_layout(
-        title=dict(
-            text="🛡️ FORTINET SECURITY FABRIC - ROADMAP VISUAL COMPLETO",
-            x=0.5,
-            font=dict(size=18, color='#dc2626', family="Arial Black")
-        ),
-        xaxis=dict(
-            range=[0.5, 5.5],
-            title="<b>→ Evolución de Madurez en Ciberseguridad</b>",
-            titlefont=dict(size=14, color='#1e293b'),
-            tickvals=[1, 2, 3, 4, 5],
-            ticktext=['Nivel 1', 'Nivel 2', 'Nivel 3', 'Nivel 4', 'Nivel 5'],
-            showgrid=False,
-            zeroline=False,
-            tickfont=dict(size=12, color='#374151')
-        ),
-        yaxis=dict(
-            range=[0, 6],
-            title="<b>↑ Amplitud de Cobertura Security Fabric</b>",
-            titlefont=dict(size=14, color='#1e293b'),
-            showticklabels=False,
-            showgrid=False,
-            zeroline=False
-        ),
-        height=750,
+        title="🛡️ FORTINET ROADMAP VISUAL",
+        title_x=0.5,
+        title_font_size=16,
+        title_font_color='#dc2626',
+        height=600,  # Altura fija más pequeña para móviles
         showlegend=False,
         plot_bgcolor='white',
         paper_bgcolor='white',
         hovermode='closest',
-        font=dict(family="Arial, sans-serif")
+        margin=dict(t=60, b=40, l=40, r=40)
+    )
+    
+    # Configurar ejes de manera simple
+    fig.update_xaxes(
+        range=[0.5, 5.5],
+        title="→ Evolución de Madurez",
+        title_font_size=12,
+        tickvals=[1, 2, 3, 4, 5],
+        ticktext=['Nivel 1', 'Nivel 2', 'Nivel 3', 'Nivel 4', 'Nivel 5'],
+        showgrid=False,
+        zeroline=False,
+        tickfont_size=10
+    )
+    
+    fig.update_yaxes(
+        range=[0, 6],
+        title="↑ Cobertura",
+        title_font_size=12,
+        showticklabels=False,
+        showgrid=False,
+        zeroline=False
     )
     
     # Mostrar el gráfico
