@@ -6,6 +6,7 @@ from plotly.subplots import make_subplots
 import numpy as np
 from datetime import datetime
 import uuid
+from typing import Dict, List
 
 # Configuración de página
 st.set_page_config(
@@ -66,19 +67,20 @@ st.markdown("""
         border-left: 6px solid #667eea;
     }
     
-    .technology-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 1rem;
-        margin: 1rem 0;
-    }
-    
     .roadmap-container {
         background: white;
         border-radius: 15px;
         padding: 2rem;
         box-shadow: 0 5px 20px rgba(0,0,0,0.1);
         margin: 2rem 0;
+    }
+    
+    .info-box {
+        background: linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 100%);
+        padding: 1.5rem;
+        border-radius: 12px;
+        border-left: 4px solid #03a9f4;
+        margin: 1rem 0;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -319,7 +321,7 @@ class TechnologyBasedAssessment:
         else:
             return 1
     
-    def get_recommendations(self) -> Dict:
+    def get_recommendations(self) -> List[Dict]:
         """Genera recomendaciones basadas en gaps"""
         recommendations = []
         
@@ -564,9 +566,6 @@ def show_maturity_matrix(assessment, industry):
     for function in functions:
         score = function_scores[function]
         level = function_levels[function]
-        
-        # Determinar color del badge
-        level_class = f"level-{level}"
         
         with st.expander(f"{TECHNOLOGY_MAPPING[list(TECHNOLOGY_MAPPING.keys())[functions.index(function)]]['icon']} {function} - Nivel {level} ({score:.1f}%)"):
             
