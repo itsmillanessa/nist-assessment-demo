@@ -653,7 +653,7 @@ COMPANY_SIZES = {
         "priority": "Eficiencia", 
         "timeline": "12-18 meses",
         "focus": ["FortiAnalyzer", "FortiAuthenticator", "FortiManager"],
-        "next_steps": "Centralizar gestión y implementar visibilidad"
+        "next_steps": "Centralizar gestión e implementar visibilidad"
     }, 
     "Grande (501-5000 empleados)": {
         "icon": "🏰", 
@@ -947,11 +947,8 @@ def show_professional_progress():
         <div class="metric-card">
             <h3 style="color: #16a34a; margin: 0;">{:.0f}%</h3>
             <p style="margin: 0;">Cobertura Total</p>
-            <div class="progress-bar">
-                <div class="progress-fill" style="width: {:.0f}%;"></div>
-            </div>
         </div>
-        """.format(coverage_pct, coverage_pct), unsafe_allow_html=True)
+        """.format(coverage_pct), unsafe_allow_html=True)
     
     with col4:
         temp_assessment = ProfessionalAssessment()
@@ -991,6 +988,10 @@ def show_professional_results(assessment):
     # Timeline corregido sin errores
     show_simplified_timeline(results)
     
+    # AGREGAR ESTAS DOS LÍNEAS - Nuevas secciones de beneficios
+    show_maturity_benefits(results)
+    show_fortinet_value_proposition()
+    
     tab1, tab2, tab3 = st.tabs(["📊 Análisis Actual", "🗺️ Roadmap por Fases", "📈 NIST Framework"])
     
     with tab1:
@@ -1018,10 +1019,7 @@ def show_simplified_timeline(results):
     </div>
     """, unsafe_allow_html=True)
     
-    # Timeline usando columnas de Streamlit (más estable)
     current_level = results['maturity_level']
-    
-    # Crear columnas para cada fase
     cols = st.columns(5)
     
     for i, (phase_num, phase_data) in enumerate(IMPLEMENTATION_PHASES.items()):
@@ -1029,9 +1027,7 @@ def show_simplified_timeline(results):
             is_current = phase_num == current_level
             is_completed = phase_num <= current_level
             
-            # Determinar estilo del marcador
             if is_current:
-                # Fase actual
                 st.markdown(f"""
                 <div style='text-align: center;'>
                     <div style='width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-weight: bold; background: {phase_data['color']}; color: white; border: 4px solid #dc2626; font-size: 1.2rem; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);'>
@@ -1043,7 +1039,6 @@ def show_simplified_timeline(results):
                 </div>
                 """, unsafe_allow_html=True)
             elif is_completed:
-                # Fase completada
                 st.markdown(f"""
                 <div style='text-align: center;'>
                     <div style='width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-weight: bold; background: {phase_data['color']}; color: white; opacity: 0.8;'>
@@ -1055,7 +1050,6 @@ def show_simplified_timeline(results):
                 </div>
                 """, unsafe_allow_html=True)
             else:
-                # Fase futura
                 st.markdown(f"""
                 <div style='text-align: center;'>
                     <div style='width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-weight: bold; background: #e5e7eb; color: #6b7280; border: 2px dashed #9ca3af;'>
@@ -1067,7 +1061,7 @@ def show_simplified_timeline(results):
                 </div>
                 """, unsafe_allow_html=True)
     
-    # Línea de progreso debajo
+    # Línea de progreso
     st.markdown("""
     <div style='margin: 2rem auto; max-width: 80%;'>
         <div style='height: 4px; background: #e5e7eb; border-radius: 2px; position: relative;'>
@@ -1079,36 +1073,8 @@ def show_simplified_timeline(results):
     </div>
     """.format((current_level / 5) * 100, int((current_level / 5) * 100)), unsafe_allow_html=True)
     
-    # Agregar el gráfico visual interactivo como en la imagen
     st.markdown("---")
     show_visual_roadmap_chart(results)
-
-def show_current_analysis(results):
-    st.subheader("📊 Análisis del Estado Actual")
-    
-    col1, col2, col3, col4 = st.columns(4)
-    
-    fortinet_count = sum(1 for v in st.session_state.professional_assessment["fortinet_products"].values() if v)
-    total_fortinet = sum(len(cat["products"]) for cat in FORTINET_COMPLETE_PORTFOLIO.values())
-    non_fortinet_count = sum(1 for v in st.session_state.professional_assessment["non_fortinet_categories"].values() if v)
-    
-    with col1:
-        st.metric("Madurez General", f"Nivel {results['maturity_level']}", f"{results['overall_score']:.1f}%")
-    
-    with col2:
-        st.metric("Productos Fortinet", f"{fortinet_count}/{total_fortinet}")
-    
-    with col3:
-        st.metric("Categorías con Terceros", f"{non_fortinet_count}/{len(FORTINET_COMPLETE_PORTFOLIO)}")
-    
-    with col4:
-        industry = st.session_state.professional_assessment['industry']
-        if industry in INDUSTRIES:
-            benchmark = INDUSTRIES[industry]["benchmark"]
-            delta = results['overall_score'] - benchmark
-            st.metric("vs. Industria", f"{delta:+.1f}%")
-
-    # Agregar esta nueva sección después de show_visual_roadmap_chart
 
 def show_maturity_benefits(results):
     """Muestra los beneficios específicos por nivel de madurez"""
@@ -1184,9 +1150,7 @@ def show_maturity_benefits(results):
         }
     }
     
-    # Mostrar beneficios actuales
     current_benefits = MATURITY_BENEFITS[current_level]
-    
     col1, col2 = st.columns([2, 1])
     
     with col1:
@@ -1209,24 +1173,21 @@ def show_maturity_benefits(results):
     with col2:
         # Gráfico de beneficios acumulativos
         levels = list(range(1, 6))
-        roi_values = [20, 30, 45, 50, 60]  # ROI acumulativo
+        roi_values = [20, 30, 45, 50, 60]
         
         fig_benefits = go.Figure()
-        
-        # Barras de beneficios
         colors = ['#dc2626', '#ea580c', '#2563eb', '#16a34a', '#7c3aed']
+        
         for i, (level, roi, color) in enumerate(zip(levels, roi_values, colors)):
             opacity = 1.0 if level <= current_level else 0.3
             fig_benefits.add_trace(go.Bar(
                 x=[level],
                 y=[roi],
-                name=f'Nivel {level}',
                 marker_color=color,
                 opacity=opacity,
                 showlegend=False
             ))
         
-        # Destacar nivel actual
         fig_benefits.add_trace(go.Scatter(
             x=[current_level],
             y=[roi_values[current_level-1]],
@@ -1247,7 +1208,6 @@ def show_maturity_benefits(results):
         
         st.plotly_chart(fig_benefits, use_container_width=True)
 
-# Agregar también esta función para mostrar el valor vs. competencia
 def show_fortinet_value_proposition():
     """Muestra por qué Fortinet vs otras soluciones"""
     st.markdown("""
@@ -1299,7 +1259,32 @@ def show_fortinet_value_proposition():
             </ul>
         </div>
         """, unsafe_allow_html=True)
+
+def show_current_analysis(results):
+    st.subheader("📊 Análisis del Estado Actual")
     
+    col1, col2, col3, col4 = st.columns(4)
+    
+    fortinet_count = sum(1 for v in st.session_state.professional_assessment["fortinet_products"].values() if v)
+    total_fortinet = sum(len(cat["products"]) for cat in FORTINET_COMPLETE_PORTFOLIO.values())
+    non_fortinet_count = sum(1 for v in st.session_state.professional_assessment["non_fortinet_categories"].values() if v)
+    
+    with col1:
+        st.metric("Madurez General", f"Nivel {results['maturity_level']}", f"{results['overall_score']:.1f}%")
+    
+    with col2:
+        st.metric("Productos Fortinet", f"{fortinet_count}/{total_fortinet}")
+    
+    with col3:
+        st.metric("Categorías con Terceros", f"{non_fortinet_count}/{len(FORTINET_COMPLETE_PORTFOLIO)}")
+    
+    with col4:
+        industry = st.session_state.professional_assessment['industry']
+        if industry in INDUSTRIES:
+            benchmark = INDUSTRIES[industry]["benchmark"]
+            delta = results['overall_score'] - benchmark
+            st.metric("vs. Industria", f"{delta:+.1f}%")
+
     # Tabla de cobertura
     st.subheader("🏗️ Cobertura por Categoría")
     
@@ -1385,10 +1370,6 @@ def show_phase_roadmap(results):
 def show_nist_analysis(results):
     st.subheader("📈 Análisis del Framework NIST")
     
-    functions = list(results['function_scores'].keys())
-    scores = list(results['function_scores'].values())
-    
-    # Gráfico de barras simple
     col1, col2 = st.columns(2)
     
     with col1:
@@ -1448,11 +1429,9 @@ def show_next_steps_recommendations(results):
         </div>
         """, unsafe_allow_html=True)
         
-        # Métricas contextuales
         if industry in INDUSTRIES:
             industry_data = INDUSTRIES[industry]
             benchmark = industry_data["benchmark"]
-            gap = results['overall_score'] - benchmark
             
             col_metric1, col_metric2 = st.columns(2)
             with col_metric1:
@@ -1461,7 +1440,6 @@ def show_next_steps_recommendations(results):
                 expected_level = 4.2 if company_size == "Empresa (5000+ empleados)" else 3.5
                 st.metric("Nivel Esperado", f"{expected_level}", "Por debajo del promedio" if current_level < expected_level else "")
         
-        # Análisis específico por tamaño
         st.markdown("**🔍 Análisis para {} / {}**".format(company_size, industry))
         
         if company_size in COMPANY_SIZES:
@@ -1486,20 +1464,17 @@ def show_next_steps_recommendations(results):
         </div>
         """, unsafe_allow_html=True)
         
-        # Recomendaciones específicas
         if company_size in COMPANY_SIZES and industry in INDUSTRIES:
             size_data = COMPANY_SIZES[company_size]
             industry_data = INDUSTRIES[industry]
             
             st.markdown("**📋 Acciones Inmediatas (Próximos 3 meses):**")
             
-            # Productos críticos por industria
             critical_products = industry_data["critical_products"]
             implemented_critical = []
             missing_critical = []
             
             for product in critical_products:
-                # Buscar en todas las categorías
                 found = False
                 for category_name, category_data in FORTINET_COMPLETE_PORTFOLIO.items():
                     if product in category_data["products"]:
@@ -1511,35 +1486,31 @@ def show_next_steps_recommendations(results):
                 if not found or product not in [p for p in implemented_critical]:
                     missing_critical.append(product)
             
-            # Mostrar recomendaciones
             st.markdown(f"1. **{industry_data['next_steps']}**")
             st.markdown(f"2. **{size_data['next_steps']}**")
             
             if missing_critical:
                 st.markdown("3. **Implementar productos críticos faltantes:**")
-                for product in missing_critical[:3]:  # Top 3
+                for product in missing_critical[:3]:
                     st.write(f"   • {product}")
             
             st.markdown("4. **Mejorar visibilidad y monitoreo continuo**")
             st.markdown("5. **Establecer métricas de seguridad**")
             
-            # Regulaciones aplicables
             if "regulations" in industry_data:
                 st.markdown("**📜 Cumplimiento Regulatorio:**")
                 for reg in industry_data["regulations"]:
                     st.write(f"• {reg}")
     
-    # Roadmap personalizado por industria
     st.markdown("""
     <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid #0ea5e9; border-radius: 16px; padding: 1.5rem; margin: 1rem 0;">
         <h4 style="color: #0369a1; margin-bottom: 1rem;">🗺️ Roadmap Personalizado para {} / {}</h4>
     </div>
     """.format(company_size.split()[0], industry), unsafe_allow_html=True)
     
-    # Timeline personalizado
     phases_data = []
     for phase_num, phase_data in IMPLEMENTATION_PHASES.items():
-        if phase_num <= current_level + 2:  # Mostrar hasta 2 fases adelante
+        if phase_num <= current_level + 2:
             status = "✅ Completado" if phase_num <= current_level else "🎯 Siguiente" if phase_num == current_level + 1 else "📅 Futuro"
             phases_data.append({
                 "Fase": f"Nivel {phase_num}",
@@ -1562,19 +1533,15 @@ def show_visual_roadmap_chart(results):
     """, unsafe_allow_html=True)
     
     current_level = results['maturity_level']
-    
-    # Crear figura con diseño mejorado
     fig = go.Figure()
     
-    # Definir colores más elegantes y profesionales
     level_colors = ['#fef2f2', '#fef3e2', '#eff6ff', '#ecfdf5', '#faf5ff']
     level_borders = ['#fecaca', '#fed7aa', '#bfdbfe', '#bbf7d0', '#e9d5ff']
     level_names = ['Nivel 1\nInicial', 'Nivel 2\nBásico', 'Nivel 3\nIntermedio', 'Nivel 4\nAvanzado', 'Nivel 5\nExcelencia']
     level_descriptions = ['Fundamentos\n(0-3 meses)', 'Consolidación\n(3-6 meses)', 'Detección Avanzada\n(6-12 meses)', 'Optimización\n(12-18 meses)', 'Zero Trust & AI\n(18-24 meses)']
     
-    # FONDO NATURAL: Crear un degradado de fondo más natural
+    # FONDO NATURAL
     for i in range(5):
-        # Zona principal con gradiente suave
         fig.add_shape(
             type="rect",
             x0=i+0.6, y0=0, x1=i+1.4, y1=6,
@@ -1584,7 +1551,6 @@ def show_visual_roadmap_chart(results):
             line=dict(color=level_borders[i], width=1, dash='dot')
         )
         
-        # Líneas de separación más elegantes
         if i < 4:
             fig.add_shape(
                 type="line",
@@ -1593,7 +1559,6 @@ def show_visual_roadmap_chart(results):
                 layer="below"
             )
         
-        # Headers de nivel más profesionales
         fig.add_annotation(
             x=i+1, y=5.8,
             text=f"<b>{level_names[i]}</b>",
@@ -1606,7 +1571,6 @@ def show_visual_roadmap_chart(results):
             borderpad=4
         )
         
-        # Timeline en la parte inferior más sutil
         fig.add_annotation(
             x=i+1, y=0.4,
             text=level_descriptions[i],
@@ -1615,12 +1579,10 @@ def show_visual_roadmap_chart(results):
             align="center"
         )
     
-    # CURVA DE MADUREZ: Línea más suave y profesional
-    x_curve = np.linspace(0.6, 5.4, 20)  # Más puntos para suavidad
-    # Función exponencial suave para madurez natural
+    # CURVA DE MADUREZ
+    x_curve = np.linspace(0.6, 5.4, 20)
     y_curve = 0.8 + 4.2 * (1 - np.exp(-0.8 * (x_curve - 0.6))) + 0.1 * np.sin(2 * np.pi * (x_curve - 0.6) / 5)
     
-    # Gradiente en la línea de madurez
     fig.add_trace(go.Scatter(
         x=x_curve,
         y=y_curve,
@@ -1635,7 +1597,6 @@ def show_visual_roadmap_chart(results):
         name='Curva de Madurez'
     ))
     
-    # Sombra de la curva para profundidad
     fig.add_trace(go.Scatter(
         x=x_curve,
         y=y_curve - 0.1,
@@ -1645,7 +1606,7 @@ def show_visual_roadmap_chart(results):
         fill=None
     ))
     
-    # Hitos importantes en la curva
+    # Hitos en la curva
     milestone_positions = [1, 2, 3, 4, 5]
     for pos in milestone_positions:
         y_pos = 0.8 + 4.2 * (1 - np.exp(-0.8 * (pos - 0.6))) + 0.1 * np.sin(2 * np.pi * (pos - 0.6) / 5)
@@ -1663,7 +1624,7 @@ def show_visual_roadmap_chart(results):
             showlegend=False
         ))
     
-    # DISTRIBUCIÓN INTELIGENTE DE PRODUCTOS
+    # DISTRIBUCIÓN DE PRODUCTOS
     category_y_ranges = {
         "Network Security": (1.0, 2.0),
         "Endpoint Security": (2.1, 2.8),
@@ -1675,7 +1636,6 @@ def show_visual_roadmap_chart(results):
         "OT & IoT Security": (3.2, 4.0)
     }
     
-    # Contadores para distribución uniforme
     phase_product_counts = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
     
     for category_name, category_data in FORTINET_COMPLETE_PORTFOLIO.items():
@@ -1684,19 +1644,16 @@ def show_visual_roadmap_chart(results):
         for product_name, product_info in category_data["products"].items():
             phase = product_info['implementation_phase']
             
-            # Verificar implementación
             product_key = f"{category_name}_{product_name}"
             is_implemented = st.session_state.professional_assessment["fortinet_products"].get(product_key, False)
             
-            # Posición más natural
             count = phase_product_counts[phase]
-            x_offset = (count % 5 - 2) * 0.05  # Distribución horizontal más sutil
+            x_offset = (count % 5 - 2) * 0.05
             y_pos = y_min + (y_max - y_min) * (count / 10.0) + np.random.uniform(-0.05, 0.05)
             
             x_pos = phase + x_offset
             phase_product_counts[phase] += 1
             
-            # Estilo más profesional
             if is_implemented:
                 color = '#059669'
                 size = 12
@@ -1713,7 +1670,6 @@ def show_visual_roadmap_chart(results):
                 line_width = 1.5
                 opacity = 0.7
             
-            # Nombre limpio del producto
             product_display = product_name.replace('Forti', '').replace(' for OT', '').strip()
             if len(product_display) > 12:
                 product_display = product_display[:10] + '...'
@@ -1749,7 +1705,6 @@ def show_visual_roadmap_chart(results):
     pin_x = current_level
     pin_y = 5.6
     
-    # Pin principal (más elegante)
     fig.add_trace(go.Scatter(
         x=[pin_x],
         y=[pin_y],
@@ -1766,7 +1721,6 @@ def show_visual_roadmap_chart(results):
         name="Posición Actual"
     ))
     
-    # Texto del pin más profesional
     fig.add_annotation(
         x=pin_x,
         y=pin_y - 0.3,
@@ -1785,7 +1739,7 @@ def show_visual_roadmap_chart(results):
         borderpad=6
     )
     
-    # Indicador en la curva de madurez
+    # Indicador en la curva
     if current_level <= 5:
         curve_y = 0.8 + 4.2 * (1 - np.exp(-0.8 * (current_level - 0.6))) + 0.1 * np.sin(2 * np.pi * (current_level - 0.6) / 5)
         
@@ -1802,7 +1756,6 @@ def show_visual_roadmap_chart(results):
             showlegend=False
         ))
         
-        # Línea conectora del pin a la curva
         fig.add_shape(
             type="line",
             x0=pin_x, y0=pin_y-0.1,
@@ -1811,7 +1764,7 @@ def show_visual_roadmap_chart(results):
             layer="above"
         )
     
-    # LEYENDA PROFESIONAL
+    # LEYENDA
     fig.add_annotation(
         x=2.5, y=0.7,
         text=(
@@ -1829,7 +1782,7 @@ def show_visual_roadmap_chart(results):
         borderpad=10
     )
     
-    # Configuración del layout más profesional
+    # CONFIGURACIÓN
     fig.update_layout(
         title={
             'text': "🛡️ FORTINET SECURITY FABRIC - ROADMAP DE MADUREZ PROFESIONAL",
@@ -1844,7 +1797,6 @@ def show_visual_roadmap_chart(results):
         margin=dict(t=60, b=50, l=40, r=40)
     )
     
-    # Ejes más limpios y profesionales
     fig.update_xaxes(
         range=[0.5, 5.5],
         title={
@@ -1874,10 +1826,8 @@ def show_visual_roadmap_chart(results):
         linewidth=1
     )
     
-    # Mostrar el gráfico
     st.plotly_chart(fig, use_container_width=True)
     
-    # Información adicional profesional
     st.markdown("""
     <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid #0ea5e9; border-radius: 12px; padding: 1.5rem; margin: 1rem 0;">
         <h4 style="color: #0369a1; margin-bottom: 0.8rem;">📊 Interpretación del Roadmap Profesional</h4>
@@ -1896,7 +1846,6 @@ def show_visual_roadmap_chart(results):
     </div>
     """, unsafe_allow_html=True)
     
-    # Agregar estadísticas del roadmap
     show_roadmap_statistics(results)
 
 def show_roadmap_statistics(results):
