@@ -1,3 +1,4 @@
+import numpy as np
 def show_visual_roadmap_chart(results):
     """Crea el gráfico visual mejorado con diseño más profesional y natural"""
     st.markdown("""
