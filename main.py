@@ -1107,6 +1107,198 @@ def show_current_analysis(results):
             benchmark = INDUSTRIES[industry]["benchmark"]
             delta = results['overall_score'] - benchmark
             st.metric("vs. Industria", f"{delta:+.1f}%")
+
+    # Agregar esta nueva sección después de show_visual_roadmap_chart
+
+def show_maturity_benefits(results):
+    """Muestra los beneficios específicos por nivel de madurez"""
+    current_level = results['maturity_level']
+    
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #fef7ff 0%, #fae8ff 100%); border: 3px solid #a855f7; border-radius: 20px; padding: 2rem; margin: 2rem 0;">
+        <h3 style="color: #7c3aed; text-align: center; margin-bottom: 1.5rem;">💎 BENEFICIOS DE SU NIVEL DE MADUREZ ACTUAL</h3>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Definir beneficios por nivel
+    MATURITY_BENEFITS = {
+        1: {
+            "title": "🛡️ Nivel 1 - Protección Básica Establecida",
+            "color": "#dc2626",
+            "benefits": [
+                "✅ Reducción del 60-70% en incidentes básicos de seguridad",
+                "✅ Cumplimiento de requisitos regulatorios fundamentales",
+                "✅ Visibilidad básica de amenazas en tiempo real",
+                "✅ Protección perimetral sólida contra ataques comunes"
+            ],
+            "business_impact": "🎯 ROI: Reducción de costos operativos del 15-20%",
+            "next_level_preview": "El siguiente nivel le dará gestión centralizada y mayor eficiencia"
+        },
+        2: {
+            "title": "🏗️ Nivel 2 - Gestión Centralizada y Eficiencia",
+            "color": "#ea580c", 
+            "benefits": [
+                "✅ Reducción del 40% en tiempo de gestión de seguridad",
+                "✅ Visibilidad completa de toda la infraestructura",
+                "✅ Respuesta automática a incidentes básicos",
+                "✅ Consolidación de herramientas y reducción de complejidad"
+            ],
+            "business_impact": "🎯 ROI: Ahorro del 25-30% en costos operativos",
+            "next_level_preview": "El siguiente nivel implementará detección avanzada con IA"
+        },
+        3: {
+            "title": "🔍 Nivel 3 - Detección Avanzada con Inteligencia",
+            "color": "#2563eb",
+            "benefits": [
+                "✅ Detección del 95% de amenazas avanzadas en tiempo real",
+                "✅ Reducción del 80% en tiempo de investigación de incidentes", 
+                "✅ Prevención proactiva de ataques zero-day",
+                "✅ Correlación inteligente de eventos de seguridad"
+            ],
+            "business_impact": "🎯 ROI: Prevención de pérdidas por $500K-2M anuales",
+            "next_level_preview": "El siguiente nivel automatizará completamente la respuesta"
+        },
+        4: {
+            "title": "🤖 Nivel 4 - Automatización y Orquestación Completa",
+            "color": "#16a34a",
+            "benefits": [
+                "✅ Respuesta automática al 90% de incidentes en < 5 minutos",
+                "✅ Reducción del 70% en personal dedicado a operaciones de seguridad",
+                "✅ Protección adaptativa basada en comportamiento",
+                "✅ Integración completa con procesos de negocio"
+            ],
+            "business_impact": "🎯 ROI: Optimización de recursos del 40-50%",
+            "next_level_preview": "El siguiente nivel implementará Zero Trust completo"
+        },
+        5: {
+            "title": "🏆 Nivel 5 - Excelencia en Zero Trust",
+            "color": "#7c3aed",
+            "benefits": [
+                "✅ Arquitectura Zero Trust completa y adaptativa",
+                "✅ Prevención del 99.9% de brechas de seguridad",
+                "✅ Optimización continua con machine learning",
+                "✅ Liderazgo en innovación de ciberseguridad"
+            ],
+            "business_impact": "🎯 ROI: Ventaja competitiva y reducción de riesgos del 60%",
+            "next_level_preview": "¡Ha alcanzado la excelencia en ciberseguridad!"
+        }
+    }
+    
+    # Mostrar beneficios actuales
+    current_benefits = MATURITY_BENEFITS[current_level]
+    
+    col1, col2 = st.columns([2, 1])
+    
+    with col1:
+        st.markdown(f"""
+        <div style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border: 3px solid {current_benefits['color']}; border-radius: 16px; padding: 2rem; margin: 1rem 0;">
+            <h4 style="color: {current_benefits['color']}; margin-bottom: 1.5rem;">{current_benefits['title']}</h4>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("**🎁 Sus Beneficios Actuales:**")
+        for benefit in current_benefits['benefits']:
+            st.markdown(f"&nbsp;&nbsp;&nbsp;&nbsp;{benefit}")
+        
+        st.markdown(f"<br><strong style='color: {current_benefits['color']};'>{current_benefits['business_impact']}</strong>", unsafe_allow_html=True)
+        
+        if current_level < 5:
+            st.info(f"💡 **Vista Previa del Siguiente Nivel:** {current_benefits['next_level_preview']}")
+        
+        st.markdown("</div>", unsafe_allow_html=True)
+    
+    with col2:
+        # Gráfico de beneficios acumulativos
+        levels = list(range(1, 6))
+        roi_values = [20, 30, 45, 50, 60]  # ROI acumulativo
+        
+        fig_benefits = go.Figure()
+        
+        # Barras de beneficios
+        colors = ['#dc2626', '#ea580c', '#2563eb', '#16a34a', '#7c3aed']
+        for i, (level, roi, color) in enumerate(zip(levels, roi_values, colors)):
+            opacity = 1.0 if level <= current_level else 0.3
+            fig_benefits.add_trace(go.Bar(
+                x=[level],
+                y=[roi],
+                name=f'Nivel {level}',
+                marker_color=color,
+                opacity=opacity,
+                showlegend=False
+            ))
+        
+        # Destacar nivel actual
+        fig_benefits.add_trace(go.Scatter(
+            x=[current_level],
+            y=[roi_values[current_level-1]],
+            mode='markers+text',
+            marker=dict(size=20, color='#dc2626', symbol='star'),
+            text=['USTED'],
+            textposition='top center',
+            showlegend=False
+        ))
+        
+        fig_benefits.update_layout(
+            title="📈 ROI Acumulativo por Nivel",
+            xaxis_title="Nivel de Madurez",
+            yaxis_title="ROI (%)",
+            height=300,
+            margin=dict(t=50, b=30, l=30, r=30)
+        )
+        
+        st.plotly_chart(fig_benefits, use_container_width=True)
+
+# Agregar también esta función para mostrar el valor vs. competencia
+def show_fortinet_value_proposition():
+    """Muestra por qué Fortinet vs otras soluciones"""
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border: 3px solid #10b981; border-radius: 20px; padding: 2rem; margin: 2rem 0;">
+        <h3 style="color: #047857; text-align: center; margin-bottom: 1.5rem;">⚡ ¿POR QUÉ FORTINET SECURITY FABRIC?</h3>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.markdown("""
+        <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); height: 280px;">
+            <h4 style="color: #dc2626; text-align: center;">🏆 VS. SOLUCIONES PUNTUALES</h4>
+            <ul style="font-size: 0.9rem; line-height: 1.6;">
+                <li><strong>85% menos</strong> de complejidad operativa</li>
+                <li><strong>60% reducción</strong> en costos totales</li>
+                <li><strong>Una sola plataforma</strong> vs. 10-15 herramientas</li>
+                <li><strong>Integración nativa</strong> sin APIs complejas</li>
+                <li><strong>Visibilidad unificada</strong> en una sola consola</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("""
+        <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); height: 280px;">
+            <h4 style="color: #2563eb; text-align: center;">🚀 BENEFICIOS ÚNICOS</h4>
+            <ul style="font-size: 0.9rem; line-height: 1.6;">
+                <li><strong>Security Fabric:</strong> Inteligencia compartida</li>
+                <li><strong>FortiGuard Labs:</strong> Threat Intelligence líder</li>
+                <li><strong>ASIC Propietarios:</strong> Performance superior</li>
+                <li><strong>Automatización:</strong> Respuesta en segundos</li>
+                <li><strong>Escalabilidad:</strong> De SMB a Enterprise</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col3:
+        st.markdown("""
+        <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); height: 280px;">
+            <h4 style="color: #16a34a; text-align: center;">💰 IMPACTO ECONÓMICO</h4>
+            <ul style="font-size: 0.9rem; line-height: 1.6;">
+                <li><strong>ROI del 300%</strong> en primer año</li>
+                <li><strong>Payback:</strong> 6-8 meses típico</li>
+                <li><strong>OPEX:</strong> 40-50% menos vs. competencia</li>
+                <li><strong>Productividad:</strong> +60% del equipo IT</li>
+                <li><strong>Compliance:</strong> Auditorías automáticas</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
     
     # Tabla de cobertura
     st.subheader("🏗️ Cobertura por Categoría")
