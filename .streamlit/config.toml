@@ -1,0 +1,57 @@
+[global]
+developmentMode = false
+showWarningOnDirectExecution = false
+
+[server]
+headless = true
+port = 8501
+enableCORS = false
+enableXsrfProtection = true
+maxUploadSize = 50
+
+[browser]
+gatherUsageStats = false
+showErrorDetails = false
+
+[theme]
+primaryColor = "#3b82f6"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f8fafc"
+textColor = "#1f2937"
+font = "sans serif"
+
+[client]
+caching = true
+displayEnabled = true
+showErrorDetails = false
+
+---
+# ================================================
+# .streamlit/secrets.toml (TEMPLATE)
+# ================================================
+[database]
+host = "db.xxxxx.supabase.co"
+port = 5432
+database = "postgres"
+user = "postgres"
+password = "your-supabase-password"
+
+[admin]
+password = "your-secure-admin-password"
+secret_key = "your-secret-key-for-sessions"
+
+[analytics]
+google_analytics_id = "G-XXXXXXXXXX"
+mixpanel_token = "your-mixpanel-token"
+
+[email]
+sendgrid_api_key = "SG.xxxxx"
+from_email = "noreply@yourdomain.com"
+admin_email = "admin@yourdomain.com"
+
+[app]
+environment = "production"
+debug = false
+base_url = "https://nist-assessment.yourdomain.com"
+
+---
